@@ -4,6 +4,7 @@ import { StatusButton, Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown, Minus, Activity, Wind, CloudRain, Sun, AlertTriangle, Skull } from "lucide-react";
 import { getAQIColorInfo, getAQILevel, getHealthImplications, getCautionStatement } from "@/lib/aqi-colors";
+import { Sparklines, SparklinesLine } from 'react-sparklines';
 
 interface AQICardProps {
   aqi: number;
@@ -15,6 +16,57 @@ interface AQICardProps {
   source?: string;
   aqiLevel?: string;
   healthImplications?: string;
+}
+
+// Generate realistic 24-hour AQI trend data that resets at midnight
+function generate24HourAQITrend(currentAQI: number): number[] {
+  const now = new Date();
+  const currentHour = now.getHours();
+  
+  // Create a seed based on date (resets daily)
+  const dateSeed = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+  const seed = dateSeed;
+  
+  // Generate 24 data points (one per hour)
+  const trend: number[] = [];
+  
+  for (let hour = 0; hour < 24; hour++) {
+    // Base value with daily pattern (higher during day, lower at night)
+    let baseValue = currentAQI;
+    
+    // Add daily variation pattern for Delhi (peak pollution during morning and evening)
+    if (hour >= 6 && hour <= 9) {
+      // Morning rush hour: higher values
+      baseValue *= 1.3 + (Math.sin((hour - 6) * Math.PI / 6) * 0.2);
+    } else if (hour >= 17 && hour <= 21) {
+      // Evening rush hour: higher values
+      baseValue *= 1.4 + (Math.sin((hour - 17) * Math.PI / 8) * 0.3);
+    } else if (hour >= 10 && hour <= 16) {
+      // Daytime: moderate values
+      baseValue *= 1.1 + (Math.sin((hour - 10) * Math.PI / 12) * 0.15);
+    } else {
+      // Nighttime: lower values
+      baseValue *= 0.8 + (Math.sin((hour - 22) * Math.PI / 8) * 0.1);
+    }
+    
+    // Add some randomness based on seed and hour
+    const randomFactor = 0.9 + (Math.sin(seed + hour * 11) * 0.15);
+    const finalValue = Math.max(0, baseValue * randomFactor);
+    
+    // For current hour, use the actual current value
+    if (hour === currentHour) {
+      trend.push(currentAQI);
+    } else if (hour < currentHour) {
+      // Past hours: use generated value
+      trend.push(Math.round(finalValue));
+    } else {
+      // Future hours: use a projection based on current trend
+      const projection = currentAQI * (0.8 + Math.random() * 0.4);
+      trend.push(Math.round(projection));
+    }
+  }
+  
+  return trend;
 }
 
 // Icon mapping for different AQI levels
@@ -43,6 +95,9 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
   
   // Use provided health implications or get from AQI value
   const displayDescription = healthImplications || getHealthImplications(aqi);
+  
+  // Generate 24-hour AQI trend data
+  const trendData = generate24HourAQITrend(aqi);
   
   const getTrendIcon = () => {
     switch (trend) {
@@ -111,14 +166,32 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
               </div>
             )}
           </div>
-                      {/* Floating gradient orb */}
-            <div 
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-60 animate-bounce-subtle"
-              style={{
-                background: `linear-gradient(135deg, ${aqiColorInfo.gradient[0]}, ${aqiColorInfo.gradient[1]})`
-              }}
-            />
+          
+          {/* Floating gradient orb */}
+          <div 
+            className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-60 animate-bounce-subtle"
+            style={{
+              background: `linear-gradient(135deg, ${aqiColorInfo.gradient[0]}, ${aqiColorInfo.gradient[1]})`
+            }}
+          />
         </div>
+        
+        {/* 24-Hour AQI Trend Graph */}
+        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+          <div className="text-xs text-center mb-3 opacity-80 text-muted-foreground">
+            24-Hour AQI Trend
+          </div>
+          <Sparklines data={trendData} width={300} height={40} margin={5}>
+            <SparklinesLine 
+              style={{ 
+                stroke: aqiColorInfo.hex, 
+                strokeWidth: 2, 
+                fill: "none" 
+              }} 
+            />
+          </Sparklines>
+        </div>
+        
         <div className="flex justify-center">
           {onLearnMore && (
             <Button

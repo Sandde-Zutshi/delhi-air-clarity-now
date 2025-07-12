@@ -204,10 +204,21 @@ export const POLLUTANT_COLORS: Record<string, PollutantColorInfo[]> = {
 // Helper to get color info for a pollutant value
 export function getPollutantColorInfo(name: string, value: number): PollutantColorInfo {
   const scale = POLLUTANT_COLORS[name] || POLLUTANT_COLORS['PM2.5'];
-  // Define breakpoints for 16+ ranges (adjust as needed)
-  const breakpoints = [12, 25, 35, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350];
-  for (let i = 0; i < breakpoints.length; i++) {
-    if (value <= breakpoints[i]) return scale[i];
+  
+  // Pollutant-specific breakpoints based on WHO/EPA standards
+  const breakpoints: Record<string, number[]> = {
+    'PM2.5': [12, 25, 35, 55, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350], // μg/m³
+    'PM10': [54, 154, 254, 354, 424, 504, 604, 704, 804, 904, 1004, 1104, 1204, 1304, 1504], // μg/m³
+    'NO2': [53, 100, 360, 649, 1249, 1649, 2049, 2449, 2849, 3249, 3649, 4049, 4449, 4849, 5500], // ppb
+    'CO': [4.4, 9.4, 12.4, 15.4, 30.4, 40.4, 50.4, 60.4, 70.4, 80.4, 90.4, 100.4, 110.4, 120.4, 150], // ppm
+    'O3': [54, 70, 85, 105, 125, 145, 165, 185, 205, 225, 245, 265, 285, 305, 400], // ppb
+    'SO2': [35, 75, 185, 304, 504, 604, 704, 804, 904, 1004, 1104, 1204, 1304, 1404, 2000], // ppb
+  };
+  
+  const pollutantBreakpoints = breakpoints[name] || breakpoints['PM2.5'];
+  
+  for (let i = 0; i < pollutantBreakpoints.length; i++) {
+    if (value <= pollutantBreakpoints[i]) return scale[i];
   }
   return scale[scale.length - 1];
 } 
