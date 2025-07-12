@@ -9,7 +9,8 @@ import { HealthGuidanceCard } from '@/components/HealthGuidanceCard';
 import { ForecastCard } from '@/components/ForecastCard';
 import { HistoricalDataCard } from '@/components/HistoricalDataCard';
 import { RemediesCard } from '@/components/RemediesCard';
-import RequestUsageCard from '@/components/RequestUsageCard';
+import { getPollutantStatus, getPollutantTrend, getTrendValue } from '@/lib/pollutant-utils';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle, RefreshCw } from "lucide-react";
@@ -20,11 +21,8 @@ export default function Index() {
     loading, 
     error, 
     refresh,
-    requestStats,
     canManualRefresh,
-    remainingRequests,
-    remainingManualRefreshes,
-    timeUntilReset
+    remainingManualRefreshes
   } = useAQI({ initialLocation: 'Delhi' });
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -239,7 +237,7 @@ export default function Index() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
                 <AQICard 
                   aqi={data.aqi} 
@@ -254,61 +252,51 @@ export default function Index() {
                     name="PM2.5" 
                     value={data.pollutants.pm2_5} 
                     unit="μg/m³" 
-                    trend="stable" 
-                    trendValue={0} 
-                    status="moderate" 
+                    trend={getPollutantTrend(data.pollutants.pm2_5)}
+                    trendValue={getTrendValue(data.pollutants.pm2_5)}
+                    status={getPollutantStatus("PM2.5", data.pollutants.pm2_5)}
                   />
                   <PollutantCard 
                     name="PM10" 
                     value={data.pollutants.pm10} 
                     unit="μg/m³" 
-                    trend="stable" 
-                    trendValue={0} 
-                    status="moderate" 
+                    trend={getPollutantTrend(data.pollutants.pm10)}
+                    trendValue={getTrendValue(data.pollutants.pm10)}
+                    status={getPollutantStatus("PM10", data.pollutants.pm10)}
                   />
                   <PollutantCard 
                     name="NO2" 
                     value={data.pollutants.no2} 
                     unit="ppb" 
-                    trend="stable" 
-                    trendValue={0} 
-                    status="moderate" 
+                    trend={getPollutantTrend(data.pollutants.no2)}
+                    trendValue={getTrendValue(data.pollutants.no2)}
+                    status={getPollutantStatus("NO2", data.pollutants.no2)}
                   />
                   <PollutantCard 
                     name="CO" 
                     value={data.pollutants.co} 
                     unit="ppm" 
-                    trend="stable" 
-                    trendValue={0} 
-                    status="moderate" 
+                    trend={getPollutantTrend(data.pollutants.co)}
+                    trendValue={getTrendValue(data.pollutants.co)}
+                    status={getPollutantStatus("CO", data.pollutants.co)}
                   />
                   <PollutantCard 
                     name="O3" 
                     value={data.pollutants.o3} 
                     unit="ppb" 
-                    trend="stable" 
-                    trendValue={0} 
-                    status="moderate" 
+                    trend={getPollutantTrend(data.pollutants.o3)}
+                    trendValue={getTrendValue(data.pollutants.o3)}
+                    status={getPollutantStatus("O3", data.pollutants.o3)}
                   />
                   <PollutantCard 
                     name="SO2" 
                     value={data.pollutants.so2} 
                     unit="ppb" 
-                    trend="stable" 
-                    trendValue={0} 
-                    status="moderate" 
+                    trend={getPollutantTrend(data.pollutants.so2)}
+                    trendValue={getTrendValue(data.pollutants.so2)}
+                    status={getPollutantStatus("SO2", data.pollutants.so2)}
                   />
                 </div>
-              </div>
-              <div className="lg:col-span-1">
-                <RequestUsageCard
-                  totalRequests={requestStats.totalRequests}
-                  manualRefreshCount={requestStats.manualRefreshCount}
-                  remainingRequests={remainingRequests}
-                  remainingManualRefreshes={remainingManualRefreshes}
-                  timeUntilReset={timeUntilReset}
-                  canManualRefresh={canManualRefresh}
-                />
               </div>
             </div>
             

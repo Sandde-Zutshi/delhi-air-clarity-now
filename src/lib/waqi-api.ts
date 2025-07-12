@@ -4,6 +4,10 @@
 const WAQI_TOKEN = import.meta.env.VITE_WAQI_TOKEN || 'demo';
 const WAQI_BASE_URL = 'https://api.waqi.info/feed';
 
+// Debug logging
+console.log('WAQI Token loaded:', WAQI_TOKEN ? 'Yes' : 'No');
+console.log('WAQI Token value:', WAQI_TOKEN.substring(0, 10) + '...');
+
 export interface AirQualityData {
   aqi: number;
   location: string;
@@ -20,7 +24,7 @@ export interface AirQualityData {
     so2: number;
   };
   lastUpdated: Date;
-  source: 'WAQI';
+  source: 'WAQI' | 'Demo';
   aqiLevel: string;
   healthImplications: string;
   cautionStatement: string;
@@ -81,23 +85,64 @@ const getAQIInfo = (aqi: number) => {
   }
 };
 
-// Get AQI data for Delhi
+// Generate demo data for fallback
+const generateDemoData = (): AirQualityData => {
+  // Generate more realistic Delhi AQI values (typically 150-300 range)
+  const demoAQI = Math.floor(Math.random() * 150) + 150; // Random AQI between 150-300 (Unhealthy to Very Unhealthy)
+  const aqiInfo = getAQIInfo(demoAQI);
+  
+  return {
+    aqi: demoAQI,
+    location: 'Delhi, India (Demo)',
+    coordinates: DELHI_COORDINATES,
+    pollutants: {
+      pm2_5: Math.floor(Math.random() * 80) + 60, // 60-140 μg/m³ (high)
+      pm10: Math.floor(Math.random() * 120) + 100, // 100-220 μg/m³ (high)
+      no2: Math.floor(Math.random() * 40) + 30, // 30-70 ppb (moderate-high)
+      co: Math.floor(Math.random() * 3) + 2, // 2-5 ppm (moderate)
+      o3: Math.floor(Math.random() * 60) + 40, // 40-100 ppb (moderate-high)
+      so2: Math.floor(Math.random() * 20) + 15, // 15-35 ppb (moderate)
+    },
+    lastUpdated: new Date(),
+    source: 'Demo',
+    aqiLevel: aqiInfo.level,
+    healthImplications: aqiInfo.healthImplications,
+    cautionStatement: aqiInfo.cautionStatement
+  };
+};
+
+// Get AQI data for Delhi with fallback
 export async function getDelhiAQI(): Promise<AirQualityData> {
   try {
     console.log('Fetching Delhi AQI data from WAQI/AQICN...');
+    console.log('Using token:', WAQI_TOKEN.substring(0, 10) + '...');
     
-    const response = await fetch(
-      `${WAQI_BASE_URL}/@${DELHI_COORDINATES.lat};${DELHI_COORDINATES.lon}/?token=${WAQI_TOKEN}`
-    );
+    const url = `${WAQI_BASE_URL}/@${DELHI_COORDINATES.lat};${DELHI_COORDINATES.lon}/?token=${WAQI_TOKEN}`;
+    console.log('Requesting URL:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
     
     if (!response.ok) {
+      console.error('WAQI API failed:', response.status, response.statusText);
       throw new Error(`WAQI API failed: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
+    console.log('WAQI API response:', data);
     
     if (data.status !== 'ok' || !data.data) {
-      throw new Error(`WAQI API returned error: ${data.status}`);
+      console.error('WAQI API returned error status:', data.status);
+      console.error('WAQI API error message:', data.data?.message || 'No error message');
+      throw new Error(`WAQI API returned error: ${data.status} - ${data.data?.message || 'Unknown error'}`);
     }
     
     const aqi = data.data.aqi;
@@ -127,7 +172,10 @@ export async function getDelhiAQI(): Promise<AirQualityData> {
     };
   } catch (error) {
     console.error('Error fetching WAQI data:', error);
-    throw new Error(`Failed to fetch Delhi air quality data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.log('Falling back to demo data...');
+    
+    // Return demo data as fallback
+    return generateDemoData();
   }
 }
 
@@ -183,6 +231,13 @@ export async function getAQIByCity(city: string): Promise<AirQualityData> {
     };
   } catch (error) {
     console.error(`Error fetching AQI data for ${city}:`, error);
+    
+    // For Delhi, return demo data as fallback
+    if (city.toLowerCase().includes('delhi')) {
+      console.log('Returning demo data for Delhi...');
+      return generateDemoData();
+    }
+    
     throw error;
   }
 }
