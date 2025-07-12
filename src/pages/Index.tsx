@@ -3,32 +3,61 @@ import { PollutantCard } from "@/components/PollutantCard";
 import { RecommendationsCard } from "@/components/RecommendationsCard";
 import { HotspotMap } from "@/components/HotspotMap";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
-import { Clock, Wifi, Zap, AlertTriangle, TrendingUp } from "lucide-react";
+import { ProtectionModal } from "@/components/ProtectionModal";
+import { LocationSearch } from "@/components/LocationSearch";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Clock, Wifi, Zap, AlertTriangle, TrendingUp, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { AQILevel } from "@/components/AQICard/constants";
+import { useAQI } from "@/hooks/useAQI";
 
-// Simulated real-time data - in production, this would come from APIs
-const currentAQI = 287;
-const previousAQI = 275;
-const lastUpdated = new Date();
+// Helper function to get pollutant status based on value
+const getPollutantStatus = (name: string, value: number): "good" | "moderate" | "unhealthy" | "critical" => {
+  const thresholds = {
+    "PM2.5": { good: 12, moderate: 35.4, unhealthy: 55.4 },
+    "PM10": { good: 54, moderate: 154, unhealthy: 254 },
+    "NO2": { good: 53, moderate: 100, unhealthy: 360 },
+    "CO": { good: 4.4, moderate: 9.4, unhealthy: 12.4 },
+    "O3": { good: 54, moderate: 70, unhealthy: 125 },
+    "SO2": { good: 35, moderate: 75, unhealthy: 185 }
+  };
+  
+  const threshold = thresholds[name as keyof typeof thresholds];
+  if (!threshold) return "moderate";
+  
+  if (value <= threshold.good) return "good";
+  if (value <= threshold.moderate) return "moderate";
+  if (value <= threshold.unhealthy) return "unhealthy";
+  return "critical";
+};
 
-const pollutantsData = [
-  { name: "PM2.5", value: 158, unit: "μg/m³", trend: "up" as const, trendValue: 12, status: "critical" as const },
-  { name: "PM10", value: 203, unit: "μg/m³", trend: "up" as const, trendValue: 8, status: "critical" as const },
-  { name: "NO2", value: 67, unit: "ppb", trend: "stable" as const, trendValue: 0, status: "unhealthy" as const },
-  { name: "CO", value: 2.1, unit: "ppm", trend: "down" as const, trendValue: 5, status: "moderate" as const },
-  { name: "O3", value: 89, unit: "ppb", trend: "up" as const, trendValue: 15, status: "unhealthy" as const },
-  { name: "SO2", value: 12, unit: "ppb", trend: "stable" as const, trendValue: 0, status: "good" as const }
-];
+// Helper function to get trend
+const getTrend = (current: number, previous: number): "up" | "down" | "stable" => {
+  const diff = current - previous;
+  if (Math.abs(diff) < 5) return "stable";
+  return diff > 0 ? "up" : "down";
+};
 
 const Index = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "reconnecting" | "offline">("connected");
+  const [protectionModalOpen, setProtectionModalOpen] = useState(false);
+  const [selectedAQILevel, setSelectedAQILevel] = useState<AQILevel | null>(null);
+  
+  // Use real AQI data
+  const {
+    data: aqiData,
+    loading: isLoading,
+    error,
+    location,
+    lastFetch,
+    fetchByCity,
+    fetchCurrentLocation,
+    refresh
+  } = useAQI({ initialLocation: 'Delhi', autoRefresh: true, refreshInterval: 300000 });
   
   useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    
     // Simulate connection status changes
     const statusTimer = setInterval(() => {
       const statuses: typeof connectionStatus[] = ["connected", "reconnecting", "offline"];
@@ -46,7 +75,6 @@ const Index = () => {
     }, 8000);
     
     return () => {
-      clearTimeout(timer);
       clearInterval(statusTimer);
     };
   }, []);
@@ -65,6 +93,19 @@ const Index = () => {
       case "reconnecting": return "Reconnecting...";
       case "offline": return "Offline";
     }
+  };
+
+  const handleLearnMore = (level: AQILevel) => {
+    setSelectedAQILevel(level);
+    setProtectionModalOpen(true);
+  };
+
+  const handleLocationSelect = (city: string) => {
+    fetchByCity(city);
+  };
+
+  const handleCurrentLocation = () => {
+    fetchCurrentLocation();
   };
 
   return (
@@ -91,7 +132,7 @@ const Index = () => {
             <div className="flex items-center gap-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg">
                 <Clock className="w-4 h-4" />
-                <span>{lastUpdated.toLocaleString()}</span>
+                <span>{lastFetch ? lastFetch.toLocaleString() : 'Loading...'}</span>
               </div>
               <div className={cn(
                 "flex items-center gap-2 glass-card px-3 py-2 rounded-lg transition-all",
@@ -102,6 +143,16 @@ const Index = () => {
                 {getConnectionIcon()}
                 <span>{getConnectionText()}</span>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refresh}
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -109,6 +160,39 @@ const Index = () => {
 
       {/* Main Dashboard */}
       <main className="relative z-10 container mx-auto px-4 py-8">
+        {/* Location Search */}
+        <div className="mb-8 animate-fade-in-up">
+          <LocationSearch
+            onLocationSelect={handleLocationSelect}
+            onCurrentLocation={handleCurrentLocation}
+            currentLocation={location}
+            loading={isLoading}
+          />
+        </div>
+        {error && (
+          <div className="mb-8 animate-fade-in-up">
+            <Card className="border-l-4 border-l-destructive bg-destructive/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-destructive" />
+                  <div>
+                    <h3 className="font-medium text-destructive">Error Loading Data</h3>
+                    <p className="text-sm text-muted-foreground">{error}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={refresh}
+                    className="ml-auto"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+        
         {isLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
@@ -132,16 +216,18 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main AQI Display */}
             <div className="lg:col-span-1 animate-fade-in-up">
-              <AQICard 
-                aqi={currentAQI} 
-                trend="up" 
-                previousAqi={previousAQI}
-              />
+              {aqiData && (
+                <AQICard 
+                  aqi={aqiData.aqi} 
+                  trend="stable"
+                  onLearnMore={handleLearnMore}
+                />
+              )}
             </div>
 
             {/* Recommendations */}
             <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-              <RecommendationsCard aqi={currentAQI} />
+              {aqiData && <RecommendationsCard aqi={aqiData.aqi} />}
             </div>
 
             {/* Key Pollutants */}
@@ -153,7 +239,14 @@ const Index = () => {
                 <p className="text-muted-foreground">Real-time readings from monitoring stations across Delhi</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                {pollutantsData.map((pollutant, index) => (
+                {aqiData && [
+                  { name: "PM2.5", value: aqiData.pollutants.pm2_5, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", aqiData.pollutants.pm2_5) },
+                  { name: "PM10", value: aqiData.pollutants.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", aqiData.pollutants.pm10) },
+                  { name: "NO2", value: aqiData.pollutants.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", aqiData.pollutants.no2) },
+                  { name: "CO", value: aqiData.pollutants.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", aqiData.pollutants.co) },
+                  { name: "O3", value: aqiData.pollutants.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", aqiData.pollutants.o3) },
+                  { name: "SO2", value: aqiData.pollutants.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", aqiData.pollutants.so2) }
+                ].map((pollutant, index) => (
                   <div 
                     key={pollutant.name}
                     className="animate-fade-in-up hover-lift"
@@ -172,6 +265,13 @@ const Index = () => {
           </div>
         )}
       </main>
+
+      {/* Protection Modal */}
+      <ProtectionModal
+        open={protectionModalOpen}
+        aqiLevel={selectedAQILevel}
+        onClose={() => setProtectionModalOpen(false)}
+      />
 
       {/* Footer */}
       <footer className="relative z-10 border-t glass-card mt-16">

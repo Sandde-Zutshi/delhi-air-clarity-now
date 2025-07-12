@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 
@@ -9,6 +10,7 @@ interface AQICardProps {
   className?: string;
   trend?: "up" | "down" | "stable";
   previousAqi?: number;
+  onLearnMore?: (level: any) => void;
 }
 
 const getAQILevel = (aqi: number) => {
@@ -20,7 +22,7 @@ const getAQILevel = (aqi: number) => {
   return { level: "Hazardous", color: "aqi-hazardous", textColor: "aqi-hazardous-foreground" };
 };
 
-export function AQICard({ aqi, location = "Delhi", className, trend = "stable", previousAqi }: AQICardProps) {
+export function AQICard({ aqi, location = "Delhi", className, trend = "stable", previousAqi, onLearnMore }: AQICardProps) {
   const { level, color, textColor } = getAQILevel(aqi);
   
   const getTrendIcon = () => {
@@ -86,7 +88,23 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
           />
         </div>
         
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-3">
+          {onLearnMore && (
+            <Button
+              onClick={() => onLearnMore({ name: level, range: [0, 0], gradient: ["", ""], icon: "", description: "", protectionLevel: "" })}
+              variant="outline"
+              size="sm"
+              className={cn(
+                "text-sm font-medium border-2 px-4 py-2",
+                `border-${color}`,
+                `text-${color}`,
+                "bg-background/50 backdrop-blur-sm hover:bg-background/80",
+                "transition-all duration-200"
+              )}
+            >
+              Learn More
+            </Button>
+          )}
           <Badge 
             variant="outline" 
             className={cn(

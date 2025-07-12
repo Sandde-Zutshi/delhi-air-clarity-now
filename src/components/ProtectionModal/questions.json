@@ -1,0 +1,44 @@
+{
+  "Good": [
+    "How can I maintain good indoor air quality?",
+    "Is it safe to exercise outdoors today?",
+    "What are the benefits of fresh air?",
+    "Should I open my windows?",
+    "How can I help keep the air clean?"
+  ],
+  "Moderate": [
+    "Should sensitive groups take precautions?",
+    "Is it okay to go for a walk?",
+    "How can I reduce indoor pollution?",
+    "What are common sources of moderate pollution?",
+    "Should I monitor air quality updates?"
+  ],
+  "Unhealthy for Sensitive Groups": [
+    "Who is considered sensitive to air pollution?",
+    "Should children wear masks outdoors?",
+    "Is it safe for elderly to go outside?",
+    "What activities should be limited?",
+    "How can I protect my pets?"
+  ],
+  "Unhealthy": [
+    "What type of mask should I wear outdoors?",
+    "How long is it safe to exercise outside?",
+    "Should I keep windows closed?",
+    "What indoor air purification methods work best?",
+    "Are certain times of day safer for outdoor activities?"
+  ],
+  "Very Unhealthy": [
+    "Should I avoid all outdoor activities?",
+    "How can I create a clean room at home?",
+    "What are the symptoms of air pollution exposure?",
+    "How can I help children stay safe indoors?",
+    "What should I do if I feel unwell?"
+  ],
+  "Hazardous": [
+    "What emergency steps should I take?",
+    "Is it safe to go outside at all?",
+    "How can I seal my home from outdoor air?",
+    "What are the signs of severe air pollution illness?",
+    "Where can I get real-time emergency updates?"
+  ]
+} 
