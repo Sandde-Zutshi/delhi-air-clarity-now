@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-l
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import "leaflet.heat";
-import { getAQIByCoordinates } from "@/lib/api";
+import { getDelhiStationsData, StationData } from "@/lib/delhi-station-api";
 
 // Fix default marker icon issue in Leaflet
 import iconUrl from "leaflet/dist/images/marker-icon.png";
@@ -13,19 +13,8 @@ L.Icon.Default.mergeOptions({
   shadowUrl: iconShadow,
 });
 
-// Delhi areas only
-const delhiAreas = [
-  { name: "Anand Vihar", lat: 28.6504, lon: 77.3153 },
-  { name: "Jahangirpuri", lat: 28.7328, lon: 77.0897 },
-  { name: "R.K. Puram", lat: 28.5642, lon: 77.2025 },
-  { name: "Dwarka", lat: 28.5682, lon: 77.0645 },
-  { name: "Connaught Place", lat: 28.6315, lon: 77.2167 },
-  { name: "India Gate", lat: 28.6129, lon: 77.2295 },
-  { name: "Lajpat Nagar", lat: 28.5675, lon: 77.2431 },
-  { name: "Karol Bagh", lat: 28.6517, lon: 77.2219 },
-  { name: "Pitampura", lat: 28.6980, lon: 77.1215 },
-  { name: "Rohini", lat: 28.7438, lon: 77.0728 }
-];
+// Delhi monitoring stations (will be populated from API)
+const DELHI_CENTER = [28.6139, 77.2090] as [number, number];
 
 const getAQIColor = (aqi: number) => {
   if (aqi <= 50) return "#22c55e"; // green
@@ -64,83 +53,74 @@ function HeatmapLayer({ points }: { points: [number, number, number][] }) {
 }
 
 export function DelhiAQIMap() {
-  const [aqiData, setAqiData] = useState<any[]>([]);
+  const [stationsData, setStationsData] = useState<StationData[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  const fetchAllAreasData = async () => {
-    setLoading(true);
-    const results = await Promise.all(
-      delhiAreas.map(async (area) => {
-        try {
-          const data = await getAQIByCoordinates(area.lat, area.lon);
-          return {
-            ...area,
-            aqi: data.aqi,
-            lastUpdated: new Date(),
-          };
-        } catch (error) {
-          return {
-            ...area,
-            aqi: null,
-            lastUpdated: new Date(),
-          };
-        }
-      })
-    );
-    setAqiData(results);
-    setLastRefresh(new Date());
-    setLoading(false);
+  const fetchStationsData = async () => {
+    try {
+      setLoading(true);
+      const data = await getDelhiStationsData();
+      setStationsData(data.stations);
+      setLastRefresh(new Date());
+    } catch (error) {
+      console.error('Error fetching Delhi stations data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchAllAreasData();
-    const interval = setInterval(fetchAllAreasData, 5 * 60 * 1000);
+    fetchStationsData();
+    const interval = setInterval(fetchStationsData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
   // Prepare heatmap points: [lat, lon, intensity]
-  const heatmapPoints: [number, number, number][] = aqiData
-    .filter((d) => typeof d.aqi === "number")
-    .map((d) => [d.lat, d.lon, Math.max(0.1, Math.min(1, d.aqi / 500))] as [number, number, number]);
+  const heatmapPoints: [number, number, number][] = stationsData
+    .filter((station) => station.aqi > 0)
+    .map((station) => [station.coordinates.lat, station.coordinates.lon, Math.max(0.1, Math.min(1, station.aqi / 500))] as [number, number, number]);
 
   return (
     <div className="w-full h-[400px] rounded-lg overflow-hidden border bg-muted relative">
-      {/* @ts-ignore */}
-      <MapContainer
-        center={[28.6139, 77.2090] as [number, number]}
-        zoom={11}
-        scrollWheelZoom={true}
-        style={{ height: "100%", width: "100%" }}
-      >
-        {/* @ts-ignore */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+              {/* @ts-ignore */}
+        <MapContainer
+          center={DELHI_CENTER}
+          zoom={11}
+          scrollWheelZoom={true}
+          style={{ height: "100%", width: "100%" }}
+        >
+          {/* @ts-ignore */}
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
         {/* Heatmap overlay */}
         <HeatmapLayer points={heatmapPoints} />
-        {/* Markers for hotspots */}
-        {aqiData.map((area, idx) =>
-          typeof area.aqi === "number" ? (
+        {/* Markers for stations */}
+        {stationsData.map((station) =>
+          station.aqi > 0 ? (
             // @ts-ignore
             <Marker
-              key={area.name}
-              position={[area.lat, area.lon] as [number, number]}
+              key={station.id}
+              position={[station.coordinates.lat, station.coordinates.lon] as [number, number]}
               icon={L.divIcon({
                 className: "custom-marker",
-                html: `<div style='background:${getAQIColor(area.aqi)};width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px #0002;'></div>`
+                html: `<div style='background:${getAQIColor(station.aqi)};width:18px;height:18px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px #0002;'></div>`
               }) as any}
             >
               // @ts-ignore
               <Tooltip direction="top" offset={[0, -10]} opacity={1} permanent={false as false}>
-                <div className="text-xs font-semibold">{area.name}</div>
-                <div className="text-xs">AQI: <span style={{ color: getAQIColor(area.aqi) }}>{area.aqi}</span></div>
+                <div className="text-xs font-semibold">{station.name}</div>
+                <div className="text-xs">AQI: <span style={{ color: getAQIColor(station.aqi) }}>{station.aqi}</span></div>
+                <div className="text-xs text-muted-foreground">{station.source}</div>
               </Tooltip>
               <Popup>
-                <div className="font-bold">{area.name}</div>
-                <div>AQI: <span style={{ color: getAQIColor(area.aqi) }}>{area.aqi}</span></div>
-                <div className="text-xs text-muted-foreground">Last updated: {lastRefresh.toLocaleTimeString()}</div>
+                <div className="font-bold">{station.name}</div>
+                <div>AQI: <span style={{ color: getAQIColor(station.aqi) }}>{station.aqi}</span></div>
+                <div className="text-xs text-muted-foreground">Level: {station.aqiLevel}</div>
+                <div className="text-xs text-muted-foreground">Source: {station.source}</div>
+                <div className="text-xs text-muted-foreground">Updated: {station.lastUpdated.toLocaleTimeString()}</div>
               </Popup>
             </Marker>
           ) : null
