@@ -18,6 +18,88 @@ export default function Index() {
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Helper functions for dynamic alert styling
+  const getAlertGradient = (aqi: number) => {
+    if (aqi <= 50) return 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+    if (aqi <= 100) return 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)';
+    if (aqi <= 150) return 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)';
+    if (aqi <= 200) return 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
+    if (aqi <= 300) return 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)';
+    return 'linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%)';
+  };
+
+  const getAlertBorderColor = (aqi: number) => {
+    if (aqi <= 50) return '#10B981';
+    if (aqi <= 100) return '#F59E0B';
+    if (aqi <= 150) return '#F97316';
+    if (aqi <= 200) return '#EF4444';
+    if (aqi <= 300) return '#8B5CF6';
+    return '#7F1D1D';
+  };
+
+  const getAlertIconColor = (aqi: number) => {
+    if (aqi <= 50) return '#FFFFFF';
+    if (aqi <= 100) return '#FFFFFF';
+    if (aqi <= 150) return '#FFFFFF';
+    if (aqi <= 200) return '#FFFFFF';
+    if (aqi <= 300) return '#FFFFFF';
+    return '#FFFFFF';
+  };
+
+  const getAlertTextColor = (aqi: number) => {
+    if (aqi <= 50) return '#FFFFFF';
+    if (aqi <= 100) return '#FFFFFF';
+    if (aqi <= 150) return '#FFFFFF';
+    if (aqi <= 200) return '#FFFFFF';
+    if (aqi <= 300) return '#FFFFFF';
+    return '#FFFFFF';
+  };
+
+  const getAlertTitle = (aqi: number) => {
+    if (aqi <= 50) return 'Good Air Quality';
+    if (aqi <= 100) return 'Moderate Air Quality';
+    if (aqi <= 150) return 'Unhealthy for Sensitive Groups';
+    if (aqi <= 200) return 'Unhealthy Air Quality';
+    if (aqi <= 300) return 'Very Unhealthy Air Quality';
+    return 'Hazardous Air Quality';
+  };
+
+  const getAlertMessage = (aqi: number) => {
+    if (aqi <= 50) return 'Air quality is good. Enjoy outdoor activities safely.';
+    if (aqi <= 100) return 'Air quality is acceptable. Sensitive groups should limit outdoor activities.';
+    if (aqi <= 150) return 'Sensitive groups should avoid outdoor activities. Others should limit prolonged exertion.';
+    if (aqi <= 200) return 'Everyone should avoid outdoor activities. Stay indoors with windows closed.';
+    if (aqi <= 300) return 'Health emergency. Avoid all outdoor activities. Use air purifiers indoors.';
+    return 'Health emergency. Remain indoors. Use air purifiers and masks if going outside is necessary.';
+  };
+
+  const getAlertButtonBg = (aqi: number) => {
+    if (aqi <= 50) return '#FFFFFF';
+    if (aqi <= 100) return '#FFFFFF';
+    if (aqi <= 150) return '#FFFFFF';
+    if (aqi <= 200) return '#FFFFFF';
+    if (aqi <= 300) return '#FFFFFF';
+    return '#FFFFFF';
+  };
+
+  const getAlertButtonText = (aqi: number) => {
+    if (aqi <= 50) return '#10B981';
+    if (aqi <= 100) return '#F59E0B';
+    if (aqi <= 150) return '#F97316';
+    if (aqi <= 200) return '#EF4444';
+    if (aqi <= 300) return '#8B5CF6';
+    return '#7F1D1D';
+  };
+
+  const getAlertButtonBorder = (aqi: number) => {
+    if (aqi <= 50) return '#10B981';
+    if (aqi <= 100) return '#F59E0B';
+    if (aqi <= 150) return '#F97316';
+    if (aqi <= 200) return '#EF4444';
+    if (aqi <= 300) return '#8B5CF6';
+    return '#7F1D1D';
+  };
+
   const currentTime = new Date().toLocaleTimeString('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
@@ -183,17 +265,56 @@ export default function Index() {
                 aqi={data.aqi} 
                 onLearnMore={(recommendation) => setShowProtectionModal(true)}
               />
-              <div className="bg-white rounded-lg p-6 shadow-sm">
+              <div 
+                className="rounded-lg p-6 shadow-sm border-2 transition-all duration-300"
+                style={{
+                  background: getAlertGradient(data.aqi),
+                  borderColor: getAlertBorderColor(data.aqi)
+                }}
+              >
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  Quick Health Alert
+                  <AlertTriangle className="w-5 h-5" style={{ color: getAlertIconColor(data.aqi) }} />
+                  <span style={{ color: getAlertTextColor(data.aqi) }}>
+                    {getAlertTitle(data.aqi)}
+                  </span>
                 </h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Current air quality conditions require attention. Check the Health tab for detailed guidance.
+                <p className="text-sm mb-4" style={{ color: getAlertTextColor(data.aqi) }}>
+                  {getAlertMessage(data.aqi)}
                 </p>
+                
+                {/* Emergency Numbers */}
+                <div className="mb-4 p-3 rounded-lg bg-white/20 backdrop-blur-sm">
+                  <h4 className="font-medium mb-2 text-sm" style={{ color: getAlertTextColor(data.aqi) }}>
+                    🚨 Emergency Contacts
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">SOS:</span>
+                      <span>112</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">Police:</span>
+                      <span>100</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">Ambulance:</span>
+                      <span>102</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-medium">Fire:</span>
+                      <span>101</span>
+                    </div>
+                  </div>
+                </div>
+                
                 <Button 
                   onClick={() => setActiveTab('health')}
-                  className="w-full"
+                  className="w-full font-medium"
+                  style={{
+                    backgroundColor: getAlertButtonBg(data.aqi),
+                    color: getAlertButtonText(data.aqi),
+                    borderColor: getAlertButtonBorder(data.aqi)
+                  }}
                 >
                   View Health Guidance
                 </Button>
