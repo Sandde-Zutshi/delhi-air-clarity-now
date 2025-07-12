@@ -119,7 +119,7 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
     <TooltipProvider>
       <div style={cardGradient} className="rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 min-w-[200px] group">
         <span style={overlayStyle} />
-        <Card className="border-4 bg-transparent shadow-none relative z-10" style={{ borderColor: colorInfo.borderColor }}>
+        <Card className="border-0 bg-transparent shadow-none relative z-10" style={{ borderColor: colorInfo.borderColor }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center justify-between" style={{ color: colorInfo.textColor }}>
               <div className="flex items-center gap-1 pl-1 font-semibold text-base">{name}</div>
