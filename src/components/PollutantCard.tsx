@@ -143,6 +143,7 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
   // Use new color system
   const colorInfo = getPollutantColorInfo(name, value);
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
+  const PollutantIcon = getPollutantIcon(name);
   
   // Generate real-time 24-hour trend data
   const trendData = generate24HourTrend(name, value);
@@ -151,15 +152,102 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
     <Card className="border-0 bg-transparent shadow-none relative z-10" style={{ borderColor: colorInfo.borderColor }}>
       <CardContent className="p-0">
         <div 
-          className="rounded-2xl p-6 relative overflow-hidden"
+          className="rounded-2xl p-6 relative overflow-hidden hover:shadow-lg transition-all duration-300"
           style={{
             background: `linear-gradient(135deg, ${colorInfo.gradient[0]}, ${colorInfo.gradient[1]})`,
             border: `2px solid ${colorInfo.borderColor}`
           }}
         >
+          {/* Header: Pollutant Name and Icon */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: `${colorInfo.textColor}20` }}
+              >
+                <PollutantIcon 
+                  className="w-5 h-5" 
+                  style={{ color: colorInfo.textColor }} 
+                />
+              </div>
+              <div>
+                <h3 
+                  className="font-bold text-lg leading-tight"
+                  style={{ color: colorInfo.textColor }}
+                >
+                  {name}
+                </h3>
+                <p 
+                  className="text-xs opacity-80"
+                  style={{ color: colorInfo.textColor }}
+                >
+                  Air Pollutant
+                </p>
+              </div>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onLearnMore?.({ name, value, unit, status })}
+              className="opacity-70 hover:opacity-100 transition-opacity hover:bg-white/20"
+              style={{ color: colorInfo.textColor }}
+            >
+              <Info className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          {/* Main Value Display */}
+          <div className="text-center mb-4">
+            <div className="flex items-baseline justify-center gap-2">
+              <span 
+                className="text-4xl font-bold"
+                style={{ color: colorInfo.textColor }}
+              >
+                {value}
+              </span>
+              <span 
+                className="text-lg font-medium opacity-80"
+                style={{ color: colorInfo.textColor }}
+              >
+                {unit}
+              </span>
+            </div>
+          </div>
+          
+          {/* Status and Trend Info */}
+          <div className="flex items-center justify-between mb-4">
+            <Badge 
+              variant="secondary" 
+              className="text-xs font-semibold px-3 py-1"
+              style={{ 
+                backgroundColor: colorInfo.textColor,
+                color: colorInfo.hex
+              }}
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </Badge>
+            
+            <div className="flex items-center gap-2">
+              <TrendIcon 
+                className="w-4 h-4" 
+                style={{ color: colorInfo.textColor }} 
+              />
+              <span 
+                className="text-sm font-medium"
+                style={{ color: colorInfo.textColor }}
+              >
+                {trendValue ? `${trendValue}%` : 'No change'}
+              </span>
+            </div>
+          </div>
+          
           {/* Sparkline Trend Graph */}
-          <div className="mb-4">
-            <Sparklines data={trendData} width={200} height={40} margin={5}>
+          <div className="bg-white/10 rounded-lg p-3">
+            <div className="text-xs text-center mb-2 opacity-80" style={{ color: colorInfo.textColor }}>
+              24-Hour Trend
+            </div>
+            <Sparklines data={trendData} width={200} height={30} margin={5}>
               <SparklinesLine 
                 style={{ 
                   stroke: colorInfo.textColor, 
@@ -168,70 +256,6 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
                 }} 
               />
             </Sparklines>
-            <div className="text-xs text-center mt-1 opacity-70" style={{ color: colorInfo.textColor }}>
-              24h Trend
-            </div>
-          </div>
-          
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <div 
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: colorInfo.hex }}
-                />
-                <h3 className="font-semibold" style={{ color: colorInfo.textColor }}>
-                  {name}
-                </h3>
-              </div>
-              
-              <div className="flex items-baseline gap-2 mb-3">
-                <span 
-                  className="text-3xl font-bold"
-                  style={{ color: colorInfo.textColor }}
-                >
-                  {value}
-                </span>
-                <span 
-                  className="text-sm opacity-80"
-                  style={{ color: colorInfo.textColor }}
-                >
-                  {unit}
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-1">
-                  <TrendIcon className="w-4 h-4" style={{ color: colorInfo.textColor }} />
-                  <span 
-                    className="text-sm font-medium"
-                    style={{ color: colorInfo.textColor }}
-                  >
-                    {trendValue || 'No change'}
-                  </span>
-                </div>
-                <Badge 
-                  variant="secondary" 
-                  className="text-xs"
-                  style={{ 
-                    backgroundColor: colorInfo.textColor,
-                    color: colorInfo.hex
-                  }}
-                >
-                  {status}
-                </Badge>
-              </div>
-            </div>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onLearnMore?.({ name, value, unit, status })}
-              className="opacity-70 hover:opacity-100 transition-opacity"
-              style={{ color: colorInfo.textColor }}
-            >
-              <Info className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </CardContent>
