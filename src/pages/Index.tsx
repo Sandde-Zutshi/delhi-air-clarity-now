@@ -224,7 +224,12 @@ export default function Index() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <AQICard aqi={data.aqi} />
+                <AQICard 
+                  aqi={data.aqi} 
+                  source={data.source}
+                  aqiLevel={data.aqiLevel}
+                  healthImplications={data.healthImplications}
+                />
               </div>
               <div className="lg:col-span-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

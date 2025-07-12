@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAQIByCity, getAQIByCoordinates, getCurrentLocation, AirQualityData } from '@/lib/api';
+import { getAQIByCity, getAQIByCoordinates, getCurrentLocation, AirQualityData } from '@/lib/waqi-api';
 
 interface UseAQIProps {
   initialLocation?: string;
