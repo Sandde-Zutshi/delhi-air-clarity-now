@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AQILevel } from "@/components/AQICard/constants";
 import { useAQI } from "@/hooks/useAQI";
+import { useCPCBAirQuality } from "@/hooks/useCPCBAirQuality";
 
 // Helper function to get pollutant status based on value
 const getPollutantStatus = (name: string, value: number): "good" | "moderate" | "unhealthy" | "critical" => {
@@ -46,6 +47,7 @@ const Index = () => {
   const [selectedAQILevel, setSelectedAQILevel] = useState<AQILevel | null>(null);
   const [selectedPollutant, setSelectedPollutant] = useState<any>(null);
   const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
+  const [selectedAQIValue, setSelectedAQIValue] = useState<number | undefined>(undefined);
   
   // Use real AQI data
   const {
@@ -58,6 +60,13 @@ const Index = () => {
     fetchCurrentLocation,
     refresh
   } = useAQI({ initialLocation: 'Delhi', autoRefresh: true, refreshInterval: 300000 });
+
+  // Use CPCB data for Delhi ETP
+  const {
+    data: cpcbData,
+    loading: cpcbLoading,
+    error: cpcbError
+  } = useCPCBAirQuality('delhi-industries', 'delhi-etp-01');
   
   useEffect(() => {
     // Simulate connection status changes
@@ -99,6 +108,7 @@ const Index = () => {
 
   const handleLearnMore = (level: AQILevel) => {
     setSelectedAQILevel(level);
+    setSelectedAQIValue(aqiData?.aqi);
     setProtectionModalOpen(true);
   };
 
@@ -249,25 +259,67 @@ const Index = () => {
                 <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent truncate">
                   Key Pollutants Monitoring
                 </h2>
-                <p className="text-muted-foreground truncate">Real-time readings from monitoring stations across Delhi</p>
+                <p className="text-muted-foreground truncate">Real-time readings from multiple sources across Delhi</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
-                {aqiData && [
-                  { name: "PM2.5", value: aqiData.pollutants.pm2_5, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", aqiData.pollutants.pm2_5) },
-                  { name: "PM10", value: aqiData.pollutants.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", aqiData.pollutants.pm10) },
-                  { name: "NO2", value: aqiData.pollutants.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", aqiData.pollutants.no2) },
-                  { name: "CO", value: aqiData.pollutants.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", aqiData.pollutants.co) },
-                  { name: "O3", value: aqiData.pollutants.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", aqiData.pollutants.o3) },
-                  { name: "SO2", value: aqiData.pollutants.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", aqiData.pollutants.so2) }
-                ].map((pollutant, index) => (
-                  <div 
-                    key={pollutant.name}
-                    className="animate-fade-in-up hover-lift min-w-0"
-                    style={{ animationDelay: `${0.3 + index * 0.1}s` }}
-                  >
-                    <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
-                  </div>
-                ))}
+              
+              {/* CPCB Data Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-foreground">CPCB Official Data</h3>
+                  <span className="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">Data Source: CPCB</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-4 min-w-0">
+                  {cpcbLoading && (
+                    <div className="col-span-full text-center text-muted-foreground py-8">Loading CPCB data...</div>
+                  )}
+                  {cpcbError && (
+                    <div className="col-span-full text-center text-destructive py-8">Error loading CPCB data: {cpcbError}</div>
+                  )}
+                  {cpcbData && [
+                    { name: "PM", value: cpcbData.pm?.value, unit: cpcbData.pm?.unit, trend: "stable" as const, trendValue: 0, status: getPollutantStatus("PM2.5", cpcbData.pm?.value ?? 0) as "good" | "moderate" | "unhealthy" | "critical" },
+                    { name: "SO2", value: cpcbData.so2?.value, unit: cpcbData.so2?.unit, trend: "stable" as const, trendValue: 0, status: getPollutantStatus("SO2", cpcbData.so2?.value ?? 0) as "good" | "moderate" | "unhealthy" | "critical" },
+                    { name: "BOD", value: cpcbData.bod?.value, unit: cpcbData.bod?.unit, trend: "stable" as const, trendValue: 0, status: "moderate" as "moderate" },
+                    { name: "COD", value: cpcbData.cod?.value, unit: cpcbData.cod?.unit, trend: "stable" as const, trendValue: 0, status: "moderate" as "moderate" },
+                    { name: "pH", value: cpcbData.ph?.value, unit: cpcbData.ph?.unit, trend: "stable" as const, trendValue: 0, status: "moderate" as "moderate" }
+                  ].map((pollutant, index) => (
+                    <div
+                      key={pollutant.name}
+                      className="animate-fade-in-up hover-lift min-w-0"
+                      style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+                    >
+                      <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
+                    </div>
+                  ))}
+                  {!cpcbLoading && !cpcbData && !cpcbError && (
+                    <div className="col-span-full text-center text-muted-foreground py-8">No CPCB data available.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* OpenWeatherMap Data Section */}
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-foreground">OpenWeatherMap Data</h3>
+                  <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Data Source: OpenWeatherMap</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
+                  {aqiData && [
+                    { name: "PM2.5", value: aqiData.pollutants.pm2_5, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", aqiData.pollutants.pm2_5) },
+                    { name: "PM10", value: aqiData.pollutants.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", aqiData.pollutants.pm10) },
+                    { name: "NO2", value: aqiData.pollutants.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", aqiData.pollutants.no2) },
+                    { name: "CO", value: aqiData.pollutants.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", aqiData.pollutants.co) },
+                    { name: "O3", value: aqiData.pollutants.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", aqiData.pollutants.o3) },
+                    { name: "SO2", value: aqiData.pollutants.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", aqiData.pollutants.so2) }
+                  ].map((pollutant, index) => (
+                    <div 
+                      key={pollutant.name}
+                      className="animate-fade-in-up hover-lift min-w-0"
+                      style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+                    >
+                      <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -283,11 +335,13 @@ const Index = () => {
       <ProtectionModal
         open={protectionModalOpen}
         aqiLevel={selectedAQILevel}
+        aqiValue={selectedAQIValue}
         pollutant={selectedPollutant}
         recommendation={selectedRecommendation}
         onClose={() => {
           setProtectionModalOpen(false);
           setSelectedAQILevel(null);
+          setSelectedAQIValue(undefined);
           setSelectedPollutant(null);
           setSelectedRecommendation(null);
         }}

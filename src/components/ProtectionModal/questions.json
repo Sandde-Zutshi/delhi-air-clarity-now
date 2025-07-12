@@ -1,44 +1,44 @@
 {
   "Good": [
-    "How can I maintain good indoor air quality?",
-    "Is it safe to exercise outdoors today?",
-    "What are the benefits of fresh air?",
-    "Should I open my windows?",
-    "How can I help keep the air clean?"
+    { "q": "How can I maintain good indoor air quality?", "a": "Keep windows open for ventilation, use air purifiers if available, avoid indoor smoking, and regularly clean dust from surfaces." },
+    { "q": "Is it safe to exercise outdoors today?", "a": "Yes, air quality is good. Outdoor exercise is safe for all age groups." },
+    { "q": "What are the benefits of fresh air?", "a": "Fresh air improves lung function, boosts mood, and supports overall health by reducing exposure to indoor pollutants." },
+    { "q": "Should I open my windows?", "a": "Yes, opening windows helps ventilate your home and maintain good air quality when outdoor air is clean." },
+    { "q": "How can I help keep the air clean?", "a": "Limit vehicle use, avoid burning waste, and support green spaces to help maintain clean air in your community." }
   ],
   "Moderate": [
-    "Should sensitive groups take precautions?",
-    "Is it okay to go for a walk?",
-    "How can I reduce indoor pollution?",
-    "What are common sources of moderate pollution?",
-    "Should I monitor air quality updates?"
+    { "q": "Should sensitive groups take precautions?", "a": "People with respiratory or heart conditions, children, and the elderly should limit prolonged outdoor exertion." },
+    { "q": "Is it okay to go for a walk?", "a": "Yes, but consider shorter walks and avoid high-traffic areas if you are sensitive to air pollution." },
+    { "q": "How can I reduce indoor pollution?", "a": "Use exhaust fans, avoid burning candles or incense, and keep your home clean to reduce indoor pollutants." },
+    { "q": "What are common sources of moderate pollution?", "a": "Vehicle emissions, construction dust, and industrial activity are common sources." },
+    { "q": "Should I monitor air quality updates?", "a": "Yes, stay informed about changing air quality, especially if you belong to a sensitive group." }
   ],
   "Unhealthy for Sensitive Groups": [
-    "Who is considered sensitive to air pollution?",
-    "Should children wear masks outdoors?",
-    "Is it safe for elderly to go outside?",
-    "What activities should be limited?",
-    "How can I protect my pets?"
+    { "q": "Who is considered sensitive to air pollution?", "a": "Children, elderly, pregnant women, and people with heart or lung conditions are most sensitive." },
+    { "q": "Should children wear masks outdoors?", "a": "If air quality is poor, children should limit outdoor activities and may wear masks if necessary." },
+    { "q": "Is it safe for elderly to go outside?", "a": "Elderly people should avoid strenuous outdoor activities and stay indoors as much as possible." },
+    { "q": "What activities should be limited?", "a": "Limit outdoor exercise, sports, and any activity that increases breathing rate." },
+    { "q": "How can I protect my pets?", "a": "Keep pets indoors during poor air quality and ensure they have clean water and food." }
   ],
   "Unhealthy": [
-    "What type of mask should I wear outdoors?",
-    "How long is it safe to exercise outside?",
-    "Should I keep windows closed?",
-    "What indoor air purification methods work best?",
-    "Are certain times of day safer for outdoor activities?"
+    { "q": "What type of mask should I wear outdoors?", "a": "Wear a certified N95 or equivalent mask to filter out fine particles when outdoors." },
+    { "q": "How long is it safe to exercise outside?", "a": "Limit outdoor exercise to short durations and avoid peak pollution hours (morning and evening)." },
+    { "q": "Should I keep windows closed?", "a": "Yes, keep windows and doors closed to prevent outdoor air from entering your home." },
+    { "q": "What indoor air purification methods work best?", "a": "Use HEPA air purifiers, keep your home clean, and avoid indoor smoking or burning candles." },
+    { "q": "Are certain times of day safer for outdoor activities?", "a": "Midday is often safer, but always check real-time air quality updates before going outside." }
   ],
   "Very Unhealthy": [
-    "Should I avoid all outdoor activities?",
-    "How can I create a clean room at home?",
-    "What are the symptoms of air pollution exposure?",
-    "How can I help children stay safe indoors?",
-    "What should I do if I feel unwell?"
+    { "q": "Should I avoid all outdoor activities?", "a": "Yes, stay indoors as much as possible and avoid all outdoor physical activities." },
+    { "q": "How can I create a clean room at home?", "a": "Seal windows and doors, use an air purifier, and avoid using gas stoves or burning candles indoors." },
+    { "q": "What are the symptoms of air pollution exposure?", "a": "Symptoms include coughing, shortness of breath, eye irritation, and fatigue. Seek medical help if severe." },
+    { "q": "How can I help children stay safe indoors?", "a": "Keep children indoors, provide activities to keep them engaged, and ensure good indoor air quality." },
+    { "q": "What should I do if I feel unwell?", "a": "Rest indoors, drink plenty of water, and seek medical attention if symptoms worsen." }
   ],
   "Hazardous": [
-    "What emergency steps should I take?",
-    "Is it safe to go outside at all?",
-    "How can I seal my home from outdoor air?",
-    "What are the signs of severe air pollution illness?",
-    "Where can I get real-time emergency updates?"
+    { "q": "What emergency steps should I take?", "a": "Stay indoors, seal your home, use air purifiers, and follow local emergency instructions." },
+    { "q": "Is it safe to go outside at all?", "a": "No, avoid going outside unless absolutely necessary and wear a certified mask if you must." },
+    { "q": "How can I seal my home from outdoor air?", "a": "Use weather stripping, close all windows and doors, and block gaps with towels or tape." },
+    { "q": "What are the signs of severe air pollution illness?", "a": "Severe symptoms include chest pain, difficulty breathing, confusion, and bluish lips. Seek emergency care immediately." },
+    { "q": "Where can I get real-time emergency updates?", "a": "Monitor government websites, local news, and official air quality apps for updates." }
   ]
 } 
