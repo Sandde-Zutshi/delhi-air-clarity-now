@@ -61,7 +61,41 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// AQI Standard Color System
+				aqi: {
+					good: 'hsl(var(--aqi-good))',
+					'good-foreground': 'hsl(var(--aqi-good-foreground))',
+					moderate: 'hsl(var(--aqi-moderate))',
+					'moderate-foreground': 'hsl(var(--aqi-moderate-foreground))',
+					'unhealthy-sensitive': 'hsl(var(--aqi-unhealthy-sensitive))',
+					'unhealthy-sensitive-foreground': 'hsl(var(--aqi-unhealthy-sensitive-foreground))',
+					unhealthy: 'hsl(var(--aqi-unhealthy))',
+					'unhealthy-foreground': 'hsl(var(--aqi-unhealthy-foreground))',
+					'very-unhealthy': 'hsl(var(--aqi-very-unhealthy))',
+					'very-unhealthy-foreground': 'hsl(var(--aqi-very-unhealthy-foreground))',
+					hazardous: 'hsl(var(--aqi-hazardous))',
+					'hazardous-foreground': 'hsl(var(--aqi-hazardous-foreground))'
+				},
+				status: {
+					critical: 'hsl(var(--status-critical))',
+					warning: 'hsl(var(--status-warning))',
+					success: 'hsl(var(--status-success))',
+					info: 'hsl(var(--status-info))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-aqi': 'var(--gradient-aqi)'
+			},
+			boxShadow: {
+				'sm': 'var(--shadow-sm)',
+				'md': 'var(--shadow-md)',
+				'lg': 'var(--shadow-lg)'
+			},
+			transitionProperty: {
+				'base': 'var(--transition-base)',
+				'slow': 'var(--transition-slow)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
