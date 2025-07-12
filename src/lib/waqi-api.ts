@@ -87,8 +87,8 @@ const getAQIInfo = (aqi: number) => {
 
 // Generate demo data for fallback
 const generateDemoData = (): AirQualityData => {
-  // Generate more realistic Delhi AQI values (typically 150-300 range)
-  const demoAQI = Math.floor(Math.random() * 150) + 150; // Random AQI between 150-300 (Unhealthy to Very Unhealthy)
+  // Generate more realistic Delhi AQI values (typically 200-350 range for Very Unhealthy)
+  const demoAQI = Math.floor(Math.random() * 150) + 200; // Random AQI between 200-350 (Very Unhealthy to Hazardous)
   const aqiInfo = getAQIInfo(demoAQI);
   
   return {
