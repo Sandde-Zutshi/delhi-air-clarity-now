@@ -41,6 +41,24 @@ const getTrend = (current: number, previous: number): "up" | "down" | "stable" =
   return diff > 0 ? "up" : "down";
 };
 
+// Helper function to convert Google AQI (0-500) to OpenWeatherMap scale (1-5)
+const convertGoogleAQIToOWM = (googleAQI: number): number => {
+  if (googleAQI <= 50) return 1;      // Good
+  if (googleAQI <= 100) return 2;     // Fair
+  if (googleAQI <= 150) return 3;     // Moderate
+  if (googleAQI <= 200) return 4;     // Poor
+  return 5;                           // Very Poor
+};
+
+// Helper function to get AQI label from Google AQI value
+const getGoogleAQILabel = (googleAQI: number): string => {
+  if (googleAQI <= 50) return "Good";
+  if (googleAQI <= 100) return "Fair";
+  if (googleAQI <= 150) return "Moderate";
+  if (googleAQI <= 200) return "Poor";
+  return "Very Poor";
+};
+
 const Index = () => {
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "reconnecting" | "offline">("connected");
   const [protectionModalOpen, setProtectionModalOpen] = useState(false);
@@ -67,6 +85,11 @@ const Index = () => {
     loading: googleLoading,
     error: googleError
   } = useGoogleAQI(28.7041, 77.1025); // Delhi coordinates
+
+  // Debug: Log AQI values
+  console.log('OpenWeatherMap AQI:', aqiData?.aqi);
+  console.log('Google AQI:', googleData?.aqi);
+  console.log('Converted Google AQI:', googleData?.aqi ? convertGoogleAQIToOWM(googleData.aqi) : 'N/A');
 
   useEffect(() => {
     // Simulate connection status changes
@@ -239,19 +262,62 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
             {/* Main AQI Display */}
             <div className="lg:col-span-1 animate-fade-in-up min-w-0">
-              {aqiData && (
-                <AQICard 
-                  aqi={aqiData.aqi} 
-                  trend="stable"
-                  onLearnMore={handleLearnMore}
-                  className="min-w-0"
-                />
+              {(aqiData || googleData) && (
+                <div className="space-y-4">
+                  {/* Google AQI Display */}
+                  {googleData && googleData.aqi && (
+                    <div className="rounded-2xl p-6 bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium opacity-90">Google AQI</span>
+                        <span className="text-xs bg-white/20 px-2 py-1 rounded">Live</span>
+                      </div>
+                      <div className="text-3xl font-bold mb-1">{googleData.aqi}</div>
+                      <div className="text-lg font-medium mb-2">{getGoogleAQILabel(googleData.aqi)}</div>
+                      <div className="text-sm opacity-90">Real-time air quality index</div>
+                    </div>
+                  )}
+                  
+                  {/* OpenWeatherMap AQI Display */}
+                  {aqiData && (
+                    <AQICard 
+                      aqi={aqiData.aqi} 
+                      trend="stable"
+                      onLearnMore={handleLearnMore}
+                      className="min-w-0"
+                    />
+                  )}
+                  
+                  {/* Combined AQI Display */}
+                  {googleData && aqiData && (
+                    <div className="rounded-2xl p-4 bg-muted/50 border border-muted-foreground/20">
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-muted-foreground mb-2">Combined AQI Status</div>
+                        <div className="flex items-center justify-center gap-4">
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-red-600">{googleData.aqi}</div>
+                            <div className="text-xs text-muted-foreground">Google</div>
+                          </div>
+                          <div className="text-muted-foreground">vs</div>
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-green-600">{aqiData.aqi}</div>
+                            <div className="text-xs text-muted-foreground">OpenWeather</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
             {/* Recommendations */}
             <div className="lg:col-span-2 animate-fade-in-up min-w-0" style={{ animationDelay: "0.1s" }}>
-              {aqiData && <RecommendationsCard aqi={aqiData.aqi} onLearnMore={handleRecommendationLearnMore} />}
+              {(aqiData || googleData) && (
+                <RecommendationsCard 
+                  aqi={googleData?.aqi ? convertGoogleAQIToOWM(googleData.aqi) : aqiData?.aqi} 
+                  onLearnMore={handleRecommendationLearnMore} 
+                />
+              )}
             </div>
 
             {/* Key Pollutants */}
