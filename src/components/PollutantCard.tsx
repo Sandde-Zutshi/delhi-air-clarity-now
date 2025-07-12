@@ -120,17 +120,7 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
         <Card className="border-0 bg-transparent shadow-none relative z-10">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span><PollutantIcon className="w-4 h-4" aria-hidden="true" /></span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {name}: {description}
-                  </TooltipContent>
-                </Tooltip>
-                {name}
-              </div>
+              <div className="flex items-center gap-1 pl-1 font-semibold text-base">{name}</div>
               {/* Top-right: Source icon with tooltip */}
               <Tooltip>
                 <TooltipTrigger asChild>

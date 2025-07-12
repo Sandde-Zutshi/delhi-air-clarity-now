@@ -7,11 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, AlertTriangle, Shield, Users, Clock, MapPin, Info, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AQILevel } from '../AQICard/constants';
-import questions from './questions.json';
+import questionsData from './questions.json';
+
+type QA = { q: string; a: string };
+const questions: Record<string, QA[]> = questionsData;
 
 interface ProtectionModalProps {
   open: boolean;
   aqiLevel: AQILevel | null;
+  aqiValue?: number;
   pollutant?: any;
   recommendation?: any;
   onClose: () => void;
@@ -56,7 +60,7 @@ const itemVariants = {
   }),
 };
 
-export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onClose }: ProtectionModalProps) {
+export function ProtectionModal({ open, aqiLevel, aqiValue, pollutant, recommendation, onClose }: ProtectionModalProps) {
   if (!aqiLevel && !pollutant && !recommendation) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
@@ -178,7 +182,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     unhealthy: "Unhealthy",
                     critical: "Hazardous"
                   };
-                  const qList = (questions as Record<string, string[]>)[statusToAQI[pollutant.status]] || [];
+                  const qList: QA[] = questions[statusToAQI[pollutant.status]] || [];
                   if (qList.length === 0) return null;
                   return (
                     <Card>
@@ -193,7 +197,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
-                          {qList.map((question, index) => (
+                          {qList.map((item, index) => (
                             <motion.div
                               key={index}
                               custom={index}
@@ -205,7 +209,10 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                               <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
                                 {index + 1}
                               </div>
-                              <p className="text-sm leading-relaxed">{question}</p>
+                              <div className="flex-1">
+                                <div className="font-medium text-sm mb-1">{item.q}</div>
+                                <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
+                              </div>
                             </motion.div>
                           ))}
                         </div>
@@ -244,7 +251,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
     };
     // Try to use recommendation.status if available, else fallback to priority
     const recStatus = recommendation.status || recommendation.priority || "medium";
-    const qList = (questions as Record<string, string[]>)[statusToAQI[recStatus]] || [];
+    const qList: QA[] = questions[statusToAQI[recStatus]] || [];
     return (
       <AnimatePresence>
         <Dialog open={open} onOpenChange={onClose}>
@@ -313,7 +320,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        {qList.map((question, index) => (
+                        {qList.map((item, index) => (
                           <motion.div
                             key={index}
                             custom={index}
@@ -325,7 +332,10 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                             <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
                               {index + 1}
                             </div>
-                            <p className="text-sm leading-relaxed">{question}</p>
+                            <div className="flex-1">
+                              <div className="font-medium text-sm mb-1">{item.q}</div>
+                              <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
+                            </div>
                           </motion.div>
                         ))}
                       </div>
@@ -386,7 +396,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
   // Handle AQI Level Modal (existing code)
   if (!isAQILevel) return null;
 
-  const qList = (questions as Record<string, string[]>)[aqiLevel.name] || [];
+  const qList: QA[] = questions[aqiLevel.name] || [];
   
   const getSeverityColor = () => {
     switch (aqiLevel.name) {
@@ -446,6 +456,13 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     <span>Delhi, India</span>
                   </div>
                 </div>
+                {/* AQI Value Display */}
+                {typeof aqiValue === 'number' && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-lg font-semibold text-foreground">AQI:</span>
+                    <span className="text-3xl font-extrabold text-primary">{aqiValue}</span>
+                  </div>
+                )}
               </DialogHeader>
 
               <div className="space-y-6 mt-6">
@@ -477,7 +494,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {qList.map((question, index) => (
+                      {qList.map((item, index) => (
                         <motion.div
                           key={index}
                           custom={index}
@@ -489,7 +506,10 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                           <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
                             {index + 1}
                           </div>
-                          <p className="text-sm leading-relaxed">{question}</p>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm mb-1">{item.q}</div>
+                            <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
+                          </div>
                         </motion.div>
                       ))}
                     </div>
