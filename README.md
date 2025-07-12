@@ -1,11 +1,10 @@
 # Delhi Air Clarity - Government Crisis Management System
 
-A comprehensive air quality monitoring dashboard for Delhi, India, featuring real-time data from multiple sources including CPCB (Central Pollution Control Board), Google Air Quality API, and OpenWeatherMap.
+A comprehensive air quality monitoring dashboard for Delhi, India, featuring real-time data from multiple sources including Google Air Quality API and OpenWeatherMap.
 
 ## Features
 
-- **Multi-Source Data Integration**: Real-time air quality data from three sources
-  - CPCB Official Data (PM, SO2, BOD, COD, pH)
+- **Multi-Source Data Integration**: Real-time air quality data from two sources
   - Google Air Quality API (PM2.5, PM10, NO2, CO, O3, SO2)
   - OpenWeatherMap (PM2.5, PM10, NO2, CO, O3, SO2)
 - **Dynamic AQI Cards**: Color-coded air quality indicators with gradient backgrounds
@@ -75,19 +74,13 @@ VITE_OPENWEATHER_API_KEY=your_openweather_api_key_here
 
 ## API Sources
 
-### 1. CPCB (Central Pollution Control Board)
-- **Endpoint**: `http://182.75.69.206:8080/v1.0/industry/delhi-industries/station/delhi-etp-01/data`
-- **Data**: PM, SO2, BOD, COD, pH
-- **Update Frequency**: Real-time
-- **Authentication**: None required
-
-### 2. Google Air Quality API
+### 1. Google Air Quality API
 - **Endpoint**: `https://airquality.googleapis.com/v1/currentConditions:lookup`
 - **Data**: PM2.5, PM10, NO2, CO, O3, SO2, AQI
 - **Update Frequency**: Real-time
 - **Authentication**: API Key required
 
-### 3. OpenWeatherMap
+### 2. OpenWeatherMap
 - **Endpoint**: OpenWeatherMap Air Pollution API
 - **Data**: PM2.5, PM10, NO2, CO, O3, SO2
 - **Update Frequency**: Every 5 minutes
