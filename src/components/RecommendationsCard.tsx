@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusButton, Button } from "@/components/ui/button";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { AlertTriangle, Shield, Users, Building2, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -165,74 +166,96 @@ export function RecommendationsCard({ aqi, onLearnMore }: RecommendationsCardPro
   const recommendations = getRecommendations(aqi);
   
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <Shield className="w-5 h-5 text-accent" />
-          Government Recommendations
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {recommendations.map((rec, index) => {
-          const config = priorityConfig[rec.priority];
-          const Icon = rec.icon;
-          
-          return (
-            <div 
-              key={index}
-              className={cn(
-                "flex items-start gap-3 p-4 rounded-lg border transition-all duration-200 hover:shadow-md",
-                config.bgColor
-              )}
-            >
-              <Icon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", config.textColor)} />
-              <div className="space-y-3 flex-1">
-                <p className={cn("text-sm font-medium", config.textColor)}>
-                  {rec.text}
-                </p>
-                <div className="flex gap-2 flex-wrap">
-                  <Badge 
-                    variant="outline" 
-                    className="text-xs"
-                    style={{
-                      borderColor: config.color,
-                      color: config.color
-                    }}
-                  >
-                    {rec.priority.toUpperCase()} PRIORITY
-                  </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    {rec.category.toUpperCase()}
-                  </Badge>
-                </div>
-                
-                {onLearnMore && rec.details && (
-                  <Button
-                    onClick={() => onLearnMore({ 
-                      title: rec.text,
-                      details: rec.details,
-                      priority: rec.priority,
-                      category: rec.category,
-                      icon: Icon,
-                      gradient: config.gradient
-                    })}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs font-medium border px-3 py-1 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
-                    style={{
-                      borderColor: config.color,
-                      color: config.color
-                    }}
-                  >
-                    <Info className="w-3 h-3 mr-1" />
-                    Learn More
-                  </Button>
+    <TooltipProvider>
+      <Card className="border-0 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <Shield className="w-5 h-5 text-accent" />
+            Government Recommendations
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(!recommendations || recommendations.length === 0) ? (
+            <div className="text-center text-muted-foreground py-8">No recommendations available for this AQI value.</div>
+          ) : recommendations.map((rec, index) => {
+            const config = priorityConfig[rec.priority];
+            const Icon = rec.icon;
+            
+            return (
+              <div 
+                key={index}
+                className={cn(
+                  "flex items-start gap-3 p-4 rounded-lg border transition-all duration-200 hover:shadow-md",
+                  config.bgColor
                 )}
+              >
+                <Icon className={cn("w-5 h-5 mt-0.5 flex-shrink-0", config.textColor)} aria-hidden="true" />
+                <div className="space-y-3 flex-1">
+                  <p className={cn("text-sm font-medium", config.textColor)}>
+                    {rec.text}
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <StatusButton 
+                            color={config.color}
+                            aria-label={`Recommendation priority: ${rec.priority}`}
+                          >
+                            {rec.priority.toUpperCase()} PRIORITY
+                          </StatusButton>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {rec.priority.charAt(0).toUpperCase() + rec.priority.slice(1)} priority
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>
+                          <StatusButton 
+                            variant="secondary"
+                            aria-label={`Recommendation category: ${rec.category}`}
+                          >
+                            {rec.category.toUpperCase()}
+                          </StatusButton>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {rec.category.charAt(0).toUpperCase() + rec.category.slice(1)} category
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  
+                  {onLearnMore && rec.details && (
+                    <Button
+                      onClick={() => onLearnMore({ 
+                        title: rec.text,
+                        details: rec.details,
+                        priority: rec.priority,
+                        category: rec.category,
+                        icon: Icon,
+                        gradient: config.gradient
+                      })}
+                      variant="outline"
+                      size="sm"
+                      aria-label={`Learn more about recommendation: ${rec.text}`}
+                      className="text-xs font-medium border px-3 py-1 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
+                      style={{
+                        borderColor: config.color,
+                        color: config.color
+                      }}
+                    >
+                      <Info className="w-3 h-3 mr-1" aria-hidden="true" />
+                      Learn More
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </CardContent>
-    </Card>
+            );
+          })}
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }

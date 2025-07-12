@@ -171,9 +171,9 @@ const Index = () => {
       </header>
 
       {/* Main Dashboard */}
-      <main className="relative z-10 container mx-auto px-4 py-8">
+      <main className="relative z-10 container mx-auto px-2 sm:px-4 py-4 sm:py-8">
         {/* Location Search */}
-        <div className="mb-8 animate-fade-in-up">
+        <div className="mb-6 sm:mb-8 animate-fade-in-up">
           <LocationSearch
             onLocationSelect={handleLocationSelect}
             onCurrentLocation={handleCurrentLocation}
@@ -182,14 +182,14 @@ const Index = () => {
           />
         </div>
         {error && (
-          <div className="mb-8 animate-fade-in-up">
-            <Card className="border-l-4 border-l-destructive bg-destructive/5">
+          <div className="mb-6 sm:mb-8 animate-fade-in-up">
+            <Card className="border-l-4 border-l-destructive bg-destructive/5 min-w-0">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="w-5 h-5 text-destructive" />
-                  <div>
-                    <h3 className="font-medium text-destructive">Error Loading Data</h3>
-                    <p className="text-sm text-muted-foreground">{error}</p>
+                  <div className="min-w-0">
+                    <h3 className="font-medium text-destructive truncate">Error Loading Data</h3>
+                    <p className="text-sm text-muted-foreground truncate">{error}</p>
                   </div>
                   <Button
                     variant="outline"
@@ -206,51 +206,52 @@ const Index = () => {
         )}
         
         {isLoading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-1">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0">
+            <div className="lg:col-span-1 min-w-0">
               <LoadingSkeleton variant="metric" />
             </div>
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 min-w-0">
               <LoadingSkeleton className="h-64" />
             </div>
-            <div className="lg:col-span-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="lg:col-span-3 min-w-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <LoadingSkeleton key={i} variant="metric" />
                 ))}
               </div>
             </div>
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 min-w-0">
               <LoadingSkeleton className="h-96" />
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
             {/* Main AQI Display */}
-            <div className="lg:col-span-1 animate-fade-in-up">
+            <div className="lg:col-span-1 animate-fade-in-up min-w-0">
               {aqiData && (
                 <AQICard 
                   aqi={aqiData.aqi} 
                   trend="stable"
                   onLearnMore={handleLearnMore}
+                  className="min-w-0"
                 />
               )}
             </div>
 
             {/* Recommendations */}
-            <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+            <div className="lg:col-span-2 animate-fade-in-up min-w-0" style={{ animationDelay: "0.1s" }}>
               {aqiData && <RecommendationsCard aqi={aqiData.aqi} onLearnMore={handleRecommendationLearnMore} />}
             </div>
 
             {/* Key Pollutants */}
-            <div className="lg:col-span-3 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            <div className="lg:col-span-3 animate-fade-in-up min-w-0" style={{ animationDelay: "0.2s" }}>
+              <div className="mb-4 sm:mb-6">
+                <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent truncate">
                   Key Pollutants Monitoring
                 </h2>
-                <p className="text-muted-foreground">Real-time readings from monitoring stations across Delhi</p>
+                <p className="text-muted-foreground truncate">Real-time readings from monitoring stations across Delhi</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
                 {aqiData && [
                   { name: "PM2.5", value: aqiData.pollutants.pm2_5, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", aqiData.pollutants.pm2_5) },
                   { name: "PM10", value: aqiData.pollutants.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", aqiData.pollutants.pm10) },
@@ -261,7 +262,7 @@ const Index = () => {
                 ].map((pollutant, index) => (
                   <div 
                     key={pollutant.name}
-                    className="animate-fade-in-up hover-lift"
+                    className="animate-fade-in-up hover-lift min-w-0"
                     style={{ animationDelay: `${0.3 + index * 0.1}s` }}
                   >
                     <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
@@ -271,7 +272,7 @@ const Index = () => {
             </div>
 
             {/* Hotspot Map */}
-            <div className="lg:col-span-3 animate-fade-in-up" style={{ animationDelay: "0.8s" }}>
+            <div className="lg:col-span-3 animate-fade-in-up min-w-0" style={{ animationDelay: "0.8s" }}>
               <HotspotMap />
             </div>
           </div>
