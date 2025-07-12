@@ -40,11 +40,12 @@ export function HealthGuidanceCard({ aqi, location, className }: HealthGuidanceC
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'severe': return 'text-red-800 bg-red-100 border-red-300';
-      case 'high': return 'text-orange-700 bg-orange-100 border-orange-300';
-      case 'moderate': return 'text-yellow-700 bg-yellow-100 border-yellow-300';
-      case 'low': return 'text-green-700 bg-green-100 border-green-300';
-      default: return 'text-gray-700 bg-gray-100 border-gray-300';
+      case 'severe': return 'text-white bg-red-600 border-red-700';
+      case 'very-high': return 'text-white bg-red-500 border-red-600';
+      case 'high': return 'text-white bg-orange-500 border-orange-600';
+      case 'moderate': return 'text-white bg-yellow-500 border-yellow-600';
+      case 'low': return 'text-white bg-green-500 border-green-600';
+      default: return 'text-white bg-gray-500 border-gray-600';
     }
   };
 

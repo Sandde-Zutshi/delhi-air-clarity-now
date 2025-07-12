@@ -307,7 +307,7 @@ export const AQI_HEALTH_GUIDANCE: { [key: string]: HealthGuidance } = {
       "Use rescue medications",
       "Move to cleaner air if possible"
     ],
-    riskLevel: 'severe'
+    riskLevel: 'very-high'
   },
 
   "Hazardous": {
