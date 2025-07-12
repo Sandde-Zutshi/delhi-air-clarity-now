@@ -13,10 +13,26 @@ interface PollutantCardProps {
 }
 
 const statusConfig = {
-  good: { color: "status-success", icon: "text-green-600" },
-  moderate: { color: "aqi-moderate", icon: "text-yellow-600" },
-  unhealthy: { color: "aqi-unhealthy-sensitive", icon: "text-orange-600" },
-  critical: { color: "status-critical", icon: "text-red-600" }
+  good: { 
+    color: "#10B981", 
+    icon: "text-green-600",
+    gradient: ["#10B981", "#059669"]
+  },
+  moderate: { 
+    color: "#F59E0B", 
+    icon: "text-yellow-600",
+    gradient: ["#F59E0B", "#D97706"]
+  },
+  unhealthy: { 
+    color: "#F97316", 
+    icon: "text-orange-600",
+    gradient: ["#F97316", "#EA580C"]
+  },
+  critical: { 
+    color: "#EF4444", 
+    icon: "text-red-600",
+    gradient: ["#EF4444", "#DC2626"]
+  }
 };
 
 const trendIcons = {
@@ -34,7 +50,12 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status }: 
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
           {name}
-          <div className={cn("w-3 h-3 rounded-full", `bg-${config.color}`)} />
+          <div 
+            className="w-3 h-3 rounded-full"
+            style={{
+              background: `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`
+            }}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -51,11 +72,11 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status }: 
 
         <Badge 
           variant="outline" 
-          className={cn(
-            "w-full justify-center text-xs",
-            `border-${config.color}`,
-            `text-${config.color}`
-          )}
+          className="w-full justify-center text-xs"
+          style={{
+            borderColor: config.color,
+            color: config.color
+          }}
         >
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </Badge>

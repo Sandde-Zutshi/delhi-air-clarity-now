@@ -54,9 +54,24 @@ const getRecommendations = (aqi: number): Recommendation[] => {
 };
 
 const priorityConfig = {
-  high: { color: "status-critical", bgColor: "bg-red-50", textColor: "text-red-700" },
-  medium: { color: "aqi-unhealthy-sensitive", bgColor: "bg-orange-50", textColor: "text-orange-700" },
-  low: { color: "status-success", bgColor: "bg-green-50", textColor: "text-green-700" }
+  high: { 
+    color: "#EF4444", 
+    bgColor: "bg-red-50", 
+    textColor: "text-red-700",
+    gradient: ["#EF4444", "#DC2626"]
+  },
+  medium: { 
+    color: "#F97316", 
+    bgColor: "bg-orange-50", 
+    textColor: "text-orange-700",
+    gradient: ["#F97316", "#EA580C"]
+  },
+  low: { 
+    color: "#10B981", 
+    bgColor: "bg-green-50", 
+    textColor: "text-green-700",
+    gradient: ["#10B981", "#059669"]
+  }
 };
 
 export function RecommendationsCard({ aqi }: RecommendationsCardProps) {
@@ -91,11 +106,11 @@ export function RecommendationsCard({ aqi }: RecommendationsCardProps) {
                 <div className="flex gap-2">
                   <Badge 
                     variant="outline" 
-                    className={cn(
-                      "text-xs",
-                      `border-${config.color}`,
-                      config.textColor
-                    )}
+                    className="text-xs"
+                    style={{
+                      borderColor: config.color,
+                      color: config.color
+                    }}
                   >
                     {rec.priority.toUpperCase()} PRIORITY
                   </Badge>

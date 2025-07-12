@@ -14,16 +14,46 @@ interface AQICardProps {
 }
 
 const getAQILevel = (aqi: number) => {
-  if (aqi <= 50) return { level: "Good", color: "aqi-good", textColor: "aqi-good-foreground" };
-  if (aqi <= 100) return { level: "Moderate", color: "aqi-moderate", textColor: "aqi-moderate-foreground" };
-  if (aqi <= 150) return { level: "Unhealthy for Sensitive Groups", color: "aqi-unhealthy-sensitive", textColor: "aqi-unhealthy-sensitive-foreground" };
-  if (aqi <= 200) return { level: "Unhealthy", color: "aqi-unhealthy", textColor: "aqi-unhealthy-foreground" };
-  if (aqi <= 300) return { level: "Very Unhealthy", color: "aqi-very-unhealthy", textColor: "aqi-very-unhealthy-foreground" };
-  return { level: "Hazardous", color: "aqi-hazardous", textColor: "aqi-hazardous-foreground" };
+  if (aqi <= 50) return { 
+    level: "Good", 
+    color: "aqi-good", 
+    textColor: "aqi-good-foreground",
+    gradient: ["#10B981", "#059669"]
+  };
+  if (aqi <= 100) return { 
+    level: "Moderate", 
+    color: "aqi-moderate", 
+    textColor: "aqi-moderate-foreground",
+    gradient: ["#F59E0B", "#D97706"]
+  };
+  if (aqi <= 150) return { 
+    level: "Unhealthy for Sensitive Groups", 
+    color: "aqi-unhealthy-sensitive", 
+    textColor: "aqi-unhealthy-sensitive-foreground",
+    gradient: ["#F97316", "#EA580C"]
+  };
+  if (aqi <= 200) return { 
+    level: "Unhealthy", 
+    color: "aqi-unhealthy", 
+    textColor: "aqi-unhealthy-foreground",
+    gradient: ["#EF4444", "#DC2626"]
+  };
+  if (aqi <= 300) return { 
+    level: "Very Unhealthy", 
+    color: "aqi-very-unhealthy", 
+    textColor: "aqi-very-unhealthy-foreground",
+    gradient: ["#8B5CF6", "#7C3AED"]
+  };
+  return { 
+    level: "Hazardous", 
+    color: "aqi-hazardous", 
+    textColor: "aqi-hazardous-foreground",
+    gradient: ["#991B1B", "#7F1D1D"]
+  };
 };
 
 export function AQICard({ aqi, location = "Delhi", className, trend = "stable", previousAqi, onLearnMore }: AQICardProps) {
-  const { level, color, textColor } = getAQILevel(aqi);
+  const { level, color, textColor, gradient } = getAQILevel(aqi);
   
   const getTrendIcon = () => {
     switch (trend) {
@@ -58,12 +88,10 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
       <CardContent className="space-y-6">
         <div className="relative">
           <div 
-            className={cn(
-              "rounded-2xl p-8 text-center transition-all duration-500 hover-scale",
-              `bg-${color}`,
-              `text-${textColor}`,
-              "shadow-lg"
-            )}
+            className="rounded-2xl p-8 text-center transition-all duration-500 hover-scale shadow-lg text-white"
+            style={{
+              background: `linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})`
+            }}
           >
             <div className="text-6xl font-bold mb-3 animate-scale-in">{aqi}</div>
             <div className="text-xl font-medium opacity-95">{level}</div>
@@ -81,10 +109,10 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
           
           {/* Floating gradient orb */}
           <div 
-            className={cn(
-              "absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-60 animate-bounce-subtle",
-              `bg-${color}`
-            )}
+            className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-60 animate-bounce-subtle"
+            style={{
+              background: `linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})`
+            }}
           />
         </div>
         
@@ -94,25 +122,22 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
               onClick={() => onLearnMore({ name: level, range: [0, 0], gradient: ["", ""], icon: "", description: "", protectionLevel: "" })}
               variant="outline"
               size="sm"
-              className={cn(
-                "text-sm font-medium border-2 px-4 py-2",
-                `border-${color}`,
-                `text-${color}`,
-                "bg-background/50 backdrop-blur-sm hover:bg-background/80",
-                "transition-all duration-200"
-              )}
+              className="text-sm font-medium border-2 px-4 py-2 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
+              style={{
+                borderColor: gradient[0],
+                color: gradient[0]
+              }}
             >
               Learn More
             </Button>
           )}
           <Badge 
             variant="outline" 
-            className={cn(
-              "text-sm font-medium border-2 px-4 py-2 animate-fade-in",
-              `border-${color}`,
-              `text-${color}`,
-              "bg-background/50 backdrop-blur-sm"
-            )}
+            className="text-sm font-medium border-2 px-4 py-2 animate-fade-in bg-background/50 backdrop-blur-sm"
+            style={{
+              borderColor: gradient[0],
+              color: gradient[0]
+            }}
           >
             <Activity className="w-3 h-3 mr-2" />
             Updated: {new Date().toLocaleTimeString()}
