@@ -88,7 +88,7 @@ const getAQIInfo = (aqi: number) => {
 // Generate demo data for fallback
 const generateDemoData = (): AirQualityData => {
   // Use consistent Delhi AQI value for demo (Very Unhealthy - typical for Delhi)
-  const demoAQI = 275; // Consistent AQI value in Very Unhealthy range (201-300)
+  const demoAQI = 385; // Consistent AQI value in Very Unhealthy range (301-400) - shows red
   const aqiInfo = getAQIInfo(demoAQI);
   
   return {
@@ -96,12 +96,12 @@ const generateDemoData = (): AirQualityData => {
     location: 'Delhi, India (Demo)',
     coordinates: DELHI_COORDINATES,
     pollutants: {
-      pm2_5: 120, // High PM2.5 level (μg/m³)
-      pm10: 180, // High PM10 level (μg/m³)
-      no2: 55, // High NO2 level (ppb)
-      co: 3.5, // Moderate CO level (ppm)
-      o3: 75, // High O3 level (ppb)
-      so2: 25, // Moderate SO2 level (ppb)
+      pm2_5: 165, // Very High PM2.5 level (μg/m³)
+      pm10: 245, // Very High PM10 level (μg/m³)
+      no2: 85, // Very High NO2 level (ppb)
+      co: 5.2, // High CO level (ppm)
+      o3: 95, // Very High O3 level (ppb)
+      so2: 35, // High SO2 level (ppb)
     },
     lastUpdated: new Date(),
     source: 'Demo',
