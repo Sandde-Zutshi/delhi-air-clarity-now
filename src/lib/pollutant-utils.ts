@@ -7,43 +7,43 @@ export interface PollutantLimits {
   critical: number;
 }
 
-// WHO and EPA standards for pollutants
+// Pollutant Limits based on WHO and EPA Standards
 export const POLLUTANT_LIMITS: Record<string, PollutantLimits> = {
   'PM2.5': {
-    good: 12,      // μg/m³
-    moderate: 35,
-    unhealthy: 55,
-    critical: 150
+    good: 12,      // μg/m³ - WHO guideline
+    moderate: 35,  // μg/m³ - WHO interim target 1
+    unhealthy: 55, // μg/m³ - WHO interim target 2
+    critical: 150  // μg/m³ - WHO interim target 3
   },
   'PM10': {
-    good: 54,      // μg/m³
-    moderate: 154,
-    unhealthy: 254,
-    critical: 354
+    good: 20,      // μg/m³ - WHO guideline
+    moderate: 50,  // μg/m³ - WHO interim target 1
+    unhealthy: 100, // μg/m³ - WHO interim target 2
+    critical: 250  // μg/m³ - WHO interim target 3
   },
   'NO2': {
-    good: 53,      // ppb
-    moderate: 100,
-    unhealthy: 360,
-    critical: 649
+    good: 40,      // μg/m³ - WHO guideline (annual)
+    moderate: 100, // μg/m³ - WHO interim target
+    unhealthy: 200, // μg/m³ - High exposure
+    critical: 400  // μg/m³ - Very high exposure
   },
   'CO': {
-    good: 4.4,     // ppm
-    moderate: 9.4,
-    unhealthy: 12.4,
-    critical: 15.4
+    good: 4,       // mg/m³ - WHO guideline (8-hour)
+    moderate: 9,   // mg/m³ - Moderate exposure
+    unhealthy: 15, // mg/m³ - High exposure
+    critical: 30   // mg/m³ - Very high exposure
   },
   'O3': {
-    good: 54,      // ppb
-    moderate: 70,
-    unhealthy: 85,
-    critical: 105
+    good: 100,     // μg/m³ - WHO guideline (8-hour)
+    moderate: 160, // μg/m³ - Moderate exposure
+    unhealthy: 240, // μg/m³ - High exposure
+    critical: 400  // μg/m³ - Very high exposure
   },
   'SO2': {
-    good: 35,      // ppb
-    moderate: 75,
-    unhealthy: 185,
-    critical: 304
+    good: 20,      // μg/m³ - WHO guideline (24-hour)
+    moderate: 125, // μg/m³ - WHO interim target
+    unhealthy: 250, // μg/m³ - High exposure
+    critical: 500  // μg/m³ - Very high exposure
   }
 };
 
@@ -205,14 +205,14 @@ export const POLLUTANT_COLORS: Record<string, PollutantColorInfo[]> = {
 export function getPollutantColorInfo(name: string, value: number): PollutantColorInfo {
   const scale = POLLUTANT_COLORS[name] || POLLUTANT_COLORS['PM2.5'];
   
-  // Pollutant-specific breakpoints based on WHO/EPA standards
+  // Pollutant-specific breakpoints based on WHO standards and health impact
   const breakpoints: Record<string, number[]> = {
-    'PM2.5': [12, 25, 35, 55, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 350], // μg/m³
-    'PM10': [54, 154, 254, 354, 424, 504, 604, 704, 804, 904, 1004, 1104, 1204, 1304, 1504], // μg/m³
-    'NO2': [53, 100, 360, 649, 1249, 1649, 2049, 2449, 2849, 3249, 3649, 4049, 4449, 4849, 5500], // ppb
-    'CO': [4.4, 9.4, 12.4, 15.4, 30.4, 40.4, 50.4, 60.4, 70.4, 80.4, 90.4, 100.4, 110.4, 120.4, 150], // ppm
-    'O3': [54, 70, 85, 105, 125, 145, 165, 185, 205, 225, 245, 265, 285, 305, 400], // ppb
-    'SO2': [35, 75, 185, 304, 504, 604, 704, 804, 904, 1004, 1104, 1204, 1304, 1404, 2000], // ppb
+    'PM2.5': [12, 25, 35, 55, 75, 100, 125, 150, 200, 250, 300, 350, 400, 500, 600], // μg/m³
+    'PM10': [20, 40, 50, 100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000], // μg/m³
+    'NO2': [40, 60, 100, 150, 200, 250, 300, 350, 400, 500, 600, 700, 800, 900, 1000], // μg/m³
+    'CO': [4, 6, 9, 12, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100], // mg/m³
+    'O3': [100, 120, 160, 200, 240, 280, 320, 360, 400, 450, 500, 550, 600, 650, 700], // μg/m³
+    'SO2': [20, 40, 125, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000], // μg/m³
   };
   
   const pollutantBreakpoints = breakpoints[name] || breakpoints['PM2.5'];

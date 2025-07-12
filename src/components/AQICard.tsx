@@ -145,7 +145,7 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
             {/* AQI Value Display */}
             <div className="text-6xl font-bold mb-2 animate-scale-in">{aqi}</div>
             <div className="text-2xl font-semibold mb-3 opacity-95">{label}</div>
-            <div className="text-base font-medium opacity-90 mb-2">{displayDescription}</div>
+            <div className="text-base font-medium opacity-90 mb-4">{displayDescription}</div>
             
             {/* Data Source Badge */}
             {source && (
@@ -157,7 +157,7 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
             )}
             
             {previousAqi && (
-              <div className={cn("flex items-center justify-center gap-2 mt-3 text-sm", getTrendColor())}>
+              <div className={cn("flex items-center justify-center gap-2 mb-4 text-sm", getTrendColor())}>
                 {getTrendIcon()}
                 <span>
                   {trend === "up" ? "+" : trend === "down" ? "-" : ""}
@@ -165,6 +165,22 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
                 </span>
               </div>
             )}
+            
+            {/* 24-Hour AQI Trend Graph - Inside the colored card */}
+            <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+              <div className="text-xs text-center mb-2 opacity-80">
+                24-Hour AQI Trend
+              </div>
+              <Sparklines data={trendData} width={280} height={35} margin={5}>
+                <SparklinesLine 
+                  style={{ 
+                    stroke: aqiColorInfo.textColor, 
+                    strokeWidth: 2, 
+                    fill: "none" 
+                  }} 
+                />
+              </Sparklines>
+            </div>
           </div>
           
           {/* Floating gradient orb */}
@@ -174,22 +190,6 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
               background: `linear-gradient(135deg, ${aqiColorInfo.gradient[0]}, ${aqiColorInfo.gradient[1]})`
             }}
           />
-        </div>
-        
-        {/* 24-Hour AQI Trend Graph */}
-        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-          <div className="text-xs text-center mb-3 opacity-80 text-muted-foreground">
-            24-Hour AQI Trend
-          </div>
-          <Sparklines data={trendData} width={300} height={40} margin={5}>
-            <SparklinesLine 
-              style={{ 
-                stroke: aqiColorInfo.hex, 
-                strokeWidth: 2, 
-                fill: "none" 
-              }} 
-            />
-          </Sparklines>
         </div>
         
         <div className="flex justify-center">
