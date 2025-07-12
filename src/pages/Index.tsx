@@ -1,7 +1,7 @@
 import { AQICard } from "@/components/AQICard";
 import { PollutantCard } from "@/components/PollutantCard";
 import { RecommendationsCard } from "@/components/RecommendationsCard";
-import { HotspotMap } from "@/components/HotspotMap";
+import { DelhiAQIMap } from "@/components/DelhiAQIMap";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { ProtectionModal } from "@/components/ProtectionModal";
 import { LocationSearch } from "@/components/LocationSearch";
@@ -281,9 +281,9 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Hotspot Map */}
+            {/* Delhi AQI Map */}
             <div className="lg:col-span-3 animate-fade-in-up min-w-0" style={{ animationDelay: "0.8s" }}>
-              <HotspotMap />
+              <DelhiAQIMap />
             </div>
           </div>
         )}
