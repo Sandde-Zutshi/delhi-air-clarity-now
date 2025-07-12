@@ -32,10 +32,10 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
 
   return (
     <div 
-      className="relative w-full py-4 px-6 text-white font-medium animate-pulse"
+      className="relative w-full py-2 px-4 text-white font-medium animate-pulse rounded-lg"
       style={{
         background: `linear-gradient(135deg, ${colorInfo.gradient[0]}, ${colorInfo.gradient[1]})`,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+        boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
       }}
     >
       {/* Emergency overlay pattern */}
@@ -47,24 +47,24 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
         }} />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <div className="relative z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Emergency Icon */}
             <div className="flex items-center gap-2">
               {isEmergency ? (
                 <div className="animate-bounce">
-                  <AlertTriangle className="w-6 h-6 text-white" />
+                  <AlertTriangle className="w-5 h-5 text-white" />
                 </div>
               ) : (
-                <AlertTriangle className="w-5 h-5 text-white" />
+                <AlertTriangle className="w-4 h-4 text-white" />
               )}
             </div>
 
             {/* Alert Content */}
             <div className="flex-1">
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold">
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold">
                   {getEmergencyTitle(aqi)}
                 </h2>
                 {isEmergency && (
@@ -74,16 +74,16 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
                   </div>
                 )}
               </div>
-              <p className="text-sm opacity-95 mt-1">
+              <p className="text-xs opacity-95 mt-1">
                 {getEmergencyMessage(aqi)} AQI: {aqi}
               </p>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Emergency Contacts */}
-            <div className="hidden md:flex items-center gap-4 text-xs">
+            <div className="hidden md:flex items-center gap-3 text-xs">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3" />
                 <span>SOS: 112</span>
@@ -98,9 +98,9 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
               <Button
                 onClick={onViewHealth}
                 size="sm"
-                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs px-2 py-1"
               >
-                View Health Guidance
+                Health Guide
               </Button>
             )}
 
@@ -110,16 +110,16 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
                 onClick={onDismiss}
                 size="sm"
                 variant="ghost"
-                className="text-white/80 hover:text-white hover:bg-white/10"
+                className="text-white/80 hover:text-white hover:bg-white/10 p-1"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </Button>
             )}
           </div>
         </div>
 
         {/* Mobile Emergency Contacts */}
-        <div className="md:hidden mt-3 pt-3 border-t border-white/20">
+        <div className="md:hidden mt-2 pt-2 border-t border-white/20">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-1">
               <Phone className="w-3 h-3" />

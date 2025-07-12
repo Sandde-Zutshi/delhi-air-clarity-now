@@ -97,15 +97,6 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Emergency Alert Banner */}
-      {data && showEmergencyBanner && (
-        <EmergencyAlertBanner
-          aqi={data.aqi}
-          onDismiss={() => setShowEmergencyBanner(false)}
-          onViewHealth={() => setActiveTab('health')}
-        />
-      )}
-
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -116,6 +107,18 @@ export default function Index() {
                 Real-time air quality monitoring for Delhi, India
               </p>
             </div>
+            
+            {/* Emergency Alert Banner - In Header */}
+            {data && showEmergencyBanner && (
+              <div className="flex-1 mx-8">
+                <EmergencyAlertBanner
+                  aqi={data.aqi}
+                  onDismiss={() => setShowEmergencyBanner(false)}
+                  onViewHealth={() => setActiveTab('health')}
+                />
+              </div>
+            )}
+            
             <div className="text-right">
               <div className="text-sm text-gray-600">{currentDate}</div>
               <div className="text-lg font-semibold text-gray-900">{currentTime}</div>
