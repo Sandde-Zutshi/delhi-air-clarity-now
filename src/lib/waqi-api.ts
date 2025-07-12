@@ -44,51 +44,21 @@ const DELHI_COORDINATES = {
   lon: 77.1025
 };
 
-// Get AQI level and health implications
+import { getAQILevel, getHealthImplications, getCautionStatement } from './aqi-colors';
+
+// Get AQI level and health implications using new color system
 const getAQIInfo = (aqi: number) => {
-  if (aqi <= 50) {
-    return {
-      level: "Good",
-      healthImplications: "Air quality is considered satisfactory, and air pollution poses little or no risk.",
-      cautionStatement: "None"
-    };
-  } else if (aqi <= 100) {
-    return {
-      level: "Moderate",
-      healthImplications: "Air quality is acceptable; however, some pollutants may be a concern for a small number of people who are unusually sensitive to air pollution.",
-      cautionStatement: "Active children and adults, and people with respiratory disease, such as asthma, should limit prolonged outdoor exertion."
-    };
-  } else if (aqi <= 150) {
-    return {
-      level: "Unhealthy for Sensitive Groups",
-      healthImplications: "Members of sensitive groups may experience health effects. The general public is not likely to be affected.",
-      cautionStatement: "Active children and adults, and people with respiratory disease, such as asthma, should limit prolonged outdoor exertion."
-    };
-  } else if (aqi <= 200) {
-    return {
-      level: "Unhealthy",
-      healthImplications: "Everyone may begin to experience health effects; members of sensitive groups may experience more serious health effects.",
-      cautionStatement: "Active children and adults, and people with respiratory disease, such as asthma, should avoid prolonged outdoor exertion; everyone else, especially children, should limit prolonged outdoor exertion."
-    };
-  } else if (aqi <= 300) {
-    return {
-      level: "Very Unhealthy",
-      healthImplications: "Health warnings of emergency conditions. The entire population is more likely to be affected.",
-      cautionStatement: "Active children and adults, and people with respiratory disease, such as asthma, should avoid all outdoor exertion; everyone else, especially children, should limit outdoor exertion."
-    };
-  } else {
-    return {
-      level: "Hazardous",
-      healthImplications: "Health alert: everyone may experience more serious health effects.",
-      cautionStatement: "Everyone should avoid all outdoor exertion."
-    };
-  }
+  return {
+    level: getAQILevel(aqi),
+    healthImplications: getHealthImplications(aqi),
+    cautionStatement: getCautionStatement(aqi)
+  };
 };
 
 // Generate demo data for fallback
 const generateDemoData = (): AirQualityData => {
-  // Use consistent Delhi AQI value for demo (Very Unhealthy - typical for Delhi)
-  const demoAQI = 385; // Consistent AQI value in Very Unhealthy range (301-400) - shows red
+  // Use consistent Delhi AQI value for demo (Hazardous - typical for Delhi)
+  const demoAQI = 320; // Consistent AQI value in Hazardous range (276-300) - shows red
   const aqiInfo = getAQIInfo(demoAQI);
   
   return {
