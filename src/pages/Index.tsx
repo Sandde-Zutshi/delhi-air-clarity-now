@@ -11,12 +11,13 @@ import { HistoricalDataCard } from '@/components/HistoricalDataCard';
 import { RemediesCard } from '@/components/RemediesCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle } from "lucide-react";
+import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function Index() {
-  const { data, loading, error } = useAQI({ initialLocation: 'Delhi' });
+  const { data, loading, error, refresh } = useAQI({ initialLocation: 'Delhi' });
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Helper functions for dynamic alert styling
   const getAlertGradient = (aqi: number) => {
@@ -100,6 +101,15 @@ export default function Index() {
     return '#7F1D1D';
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const currentTime = new Date().toLocaleTimeString('en-IN', {
     hour: '2-digit',
     minute: '2-digit',
@@ -165,6 +175,16 @@ export default function Index() {
             <div className="text-right">
               <div className="text-sm text-gray-600">{currentDate}</div>
               <div className="text-lg font-semibold text-gray-900">{currentTime}</div>
+              <Button
+                onClick={handleRefresh}
+                disabled={loading || isRefreshing}
+                variant="outline"
+                size="sm"
+                className="mt-2"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Refreshing...' : 'Refresh'}
+              </Button>
             </div>
           </div>
         </div>
