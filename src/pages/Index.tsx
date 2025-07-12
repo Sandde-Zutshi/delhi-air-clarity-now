@@ -179,7 +179,10 @@ export default function Index() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecommendationsCard aqi={data.aqi} />
+              <RecommendationsCard 
+                aqi={data.aqi} 
+                onLearnMore={(recommendation) => setShowProtectionModal(true)}
+              />
               <div className="bg-white rounded-lg p-6 shadow-sm">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
