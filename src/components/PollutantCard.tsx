@@ -5,6 +5,7 @@ import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/comp
 import { TrendingUp, TrendingDown, Minus, Flame, Droplets, Wind, Zap, Car, Factory, Home, Leaf, Train, Bus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPollutantColorInfo } from '@/lib/pollutant-utils';
+import { Sparklines, SparklinesLine } from 'react-sparklines';
 
 interface PollutantCardProps {
   name: string;
@@ -97,6 +98,8 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
   const PollutantIcon = getPollutantIcon(name);
   const description = getPollutantDescription(name);
   const source = getPollutantSource(name);
+  // Mock 24-hour trend data (replace with real data if available)
+  const mockTrend = Array.from({ length: 24 }, (_, i) => value + Math.round(Math.sin(i / 3) * 10 + Math.random() * 5));
   // Dynamic gradient background style
   const cardGradient: React.CSSProperties = {
     background: `linear-gradient(135deg, ${colorInfo.gradient[0]}, ${colorInfo.gradient[1]})`,
@@ -138,6 +141,12 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Sparkline 24h trend */}
+            <div className="mb-1 -mt-2">
+              <Sparklines data={mockTrend} width={80} height={24} margin={4} svgWidth={80} svgHeight={24}>
+                <SparklinesLine style={{ stroke: colorInfo.hex, fill: 'none', strokeWidth: 2 }} />
+              </Sparklines>
+            </div>
             <div className="text-2xl font-bold" style={{ color: colorInfo.textColor }}>
               {value && value > 0 ? (
                 <>
