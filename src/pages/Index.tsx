@@ -8,10 +8,10 @@ import { DelhiAQIMap } from '@/components/DelhiAQIMap';
 import { HealthGuidanceCard } from '@/components/HealthGuidanceCard';
 import { ForecastCard } from '@/components/ForecastCard';
 import { HistoricalDataCard } from '@/components/HistoricalDataCard';
-import { SolutionsCard } from '@/components/SolutionsCard';
+import { RemediesCard } from '@/components/RemediesCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Shield, Cloud, BarChart3, Heart, Map, Settings, AlertTriangle } from "lucide-react";
+import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle } from "lucide-react";
 
 export default function Index() {
   const { data, loading, error } = useAQI({ initialLocation: 'Delhi' });
@@ -112,9 +112,9 @@ export default function Index() {
               <Map className="w-4 h-4" />
               Map
             </TabsTrigger>
-            <TabsTrigger value="solutions" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Solutions
+            <TabsTrigger value="remedies" className="flex items-center gap-2">
+              <Leaf className="w-4 h-4" />
+              Remedies
             </TabsTrigger>
           </TabsList>
 
@@ -229,9 +229,9 @@ export default function Index() {
             </div>
           </TabsContent>
 
-          {/* Solutions Tab */}
-          <TabsContent value="solutions" className="space-y-6">
-            <SolutionsCard />
+          {/* Remedies Tab */}
+          <TabsContent value="remedies" className="space-y-6">
+            <RemediesCard />
           </TabsContent>
         </Tabs>
       </main>
