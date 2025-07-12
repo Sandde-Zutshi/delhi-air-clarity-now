@@ -9,12 +9,23 @@ import { HealthGuidanceCard } from '@/components/HealthGuidanceCard';
 import { ForecastCard } from '@/components/ForecastCard';
 import { HistoricalDataCard } from '@/components/HistoricalDataCard';
 import { RemediesCard } from '@/components/RemediesCard';
+import RequestUsageCard from '@/components/RequestUsageCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default function Index() {
-  const { data, loading, error, refresh } = useAQI({ initialLocation: 'Delhi' });
+  const { 
+    data, 
+    loading, 
+    error, 
+    refresh,
+    requestStats,
+    canManualRefresh,
+    remainingRequests,
+    remainingManualRefreshes,
+    timeUntilReset
+  } = useAQI({ initialLocation: 'Delhi' });
   const [showProtectionModal, setShowProtectionModal] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -102,6 +113,11 @@ export default function Index() {
   };
 
   const handleRefresh = async () => {
+    if (!canManualRefresh) {
+      alert('Manual refresh limit reached for today. Please try again tomorrow.');
+      return;
+    }
+    
     setIsRefreshing(true);
     try {
       await refresh();
@@ -177,10 +193,11 @@ export default function Index() {
               <div className="text-lg font-semibold text-gray-900">{currentTime}</div>
               <Button
                 onClick={handleRefresh}
-                disabled={loading || isRefreshing}
+                disabled={loading || isRefreshing || !canManualRefresh}
                 variant="outline"
                 size="sm"
                 className="mt-2"
+                title={!canManualRefresh ? `Manual refresh limit reached. ${remainingManualRefreshes} remaining.` : 'Refresh data'}
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
                 {isRefreshing ? 'Refreshing...' : 'Refresh'}
@@ -222,7 +239,7 @@ export default function Index() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="lg:col-span-1">
                 <AQICard 
                   aqi={data.aqi} 
@@ -282,6 +299,16 @@ export default function Index() {
                     status="moderate" 
                   />
                 </div>
+              </div>
+              <div className="lg:col-span-1">
+                <RequestUsageCard
+                  totalRequests={requestStats.totalRequests}
+                  manualRefreshCount={requestStats.manualRefreshCount}
+                  remainingRequests={remainingRequests}
+                  remainingManualRefreshes={remainingManualRefreshes}
+                  timeUntilReset={timeUntilReset}
+                  canManualRefresh={canManualRefresh}
+                />
               </div>
             </div>
             
