@@ -20,6 +20,14 @@ interface UseGoogleAQIResult {
 // Use environment variable for API key
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_AQI_API_KEY;
 
+// Debug: Check if API key is loaded
+console.log('Google API Key loaded:', GOOGLE_API_KEY ? 'Yes' : 'No');
+console.log('API Key length:', GOOGLE_API_KEY?.length || 0);
+
+// Fallback for development (remove in production)
+const FALLBACK_API_KEY = 'AIzaSyBgQNG7b6h5UfoCAcb3NwfLwmy01VmcV2A';
+const API_KEY_TO_USE = GOOGLE_API_KEY || FALLBACK_API_KEY;
+
 export function useGoogleAQI(
   latitude: number = 28.7041, // Default to Delhi coordinates
   longitude: number = 77.1025
@@ -29,8 +37,15 @@ export function useGoogleAQI(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!GOOGLE_API_KEY) {
-      setError('Google AQI API key not configured');
+    if (!API_KEY_TO_USE) {
+      setError('Google AQI API key not configured. Please check your .env.local file.');
+      setLoading(false);
+      return;
+    }
+
+    // Additional validation
+    if (API_KEY_TO_USE.length < 10) {
+      setError('Google AQI API key appears to be invalid (too short)');
       setLoading(false);
       return;
     }
@@ -42,7 +57,7 @@ export function useGoogleAQI(
       try {
         // Use Google's Air Quality API endpoint
         const response = await fetch(
-          `https://airquality.googleapis.com/v1/currentConditions:lookup?key=${GOOGLE_API_KEY}`,
+          `https://airquality.googleapis.com/v1/currentConditions:lookup?key=${API_KEY_TO_USE}`,
           {
             method: 'POST',
             headers: {
