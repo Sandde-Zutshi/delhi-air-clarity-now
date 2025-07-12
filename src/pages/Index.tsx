@@ -44,6 +44,8 @@ const Index = () => {
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "reconnecting" | "offline">("connected");
   const [protectionModalOpen, setProtectionModalOpen] = useState(false);
   const [selectedAQILevel, setSelectedAQILevel] = useState<AQILevel | null>(null);
+  const [selectedPollutant, setSelectedPollutant] = useState<any>(null);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<any>(null);
   
   // Use real AQI data
   const {
@@ -97,6 +99,16 @@ const Index = () => {
 
   const handleLearnMore = (level: AQILevel) => {
     setSelectedAQILevel(level);
+    setProtectionModalOpen(true);
+  };
+
+  const handlePollutantLearnMore = (pollutant: any) => {
+    setSelectedPollutant(pollutant);
+    setProtectionModalOpen(true);
+  };
+
+  const handleRecommendationLearnMore = (recommendation: any) => {
+    setSelectedRecommendation(recommendation);
     setProtectionModalOpen(true);
   };
 
@@ -227,7 +239,7 @@ const Index = () => {
 
             {/* Recommendations */}
             <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-              {aqiData && <RecommendationsCard aqi={aqiData.aqi} />}
+              {aqiData && <RecommendationsCard aqi={aqiData.aqi} onLearnMore={handleRecommendationLearnMore} />}
             </div>
 
             {/* Key Pollutants */}
@@ -252,7 +264,7 @@ const Index = () => {
                     className="animate-fade-in-up hover-lift"
                     style={{ animationDelay: `${0.3 + index * 0.1}s` }}
                   >
-                    <PollutantCard {...pollutant} />
+                    <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
                   </div>
                 ))}
               </div>
@@ -270,7 +282,14 @@ const Index = () => {
       <ProtectionModal
         open={protectionModalOpen}
         aqiLevel={selectedAQILevel}
-        onClose={() => setProtectionModalOpen(false)}
+        pollutant={selectedPollutant}
+        recommendation={selectedRecommendation}
+        onClose={() => {
+          setProtectionModalOpen(false);
+          setSelectedAQILevel(null);
+          setSelectedPollutant(null);
+          setSelectedRecommendation(null);
+        }}
       />
 
       {/* Footer */}

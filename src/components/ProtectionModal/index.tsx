@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X, AlertTriangle, Shield, Users, Clock, MapPin } from "lucide-react";
+import { X, AlertTriangle, Shield, Users, Clock, MapPin, Info, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AQILevel } from '../AQICard/constants';
 import questions from './questions.json';
@@ -12,6 +12,8 @@ import questions from './questions.json';
 interface ProtectionModalProps {
   open: boolean;
   aqiLevel: AQILevel | null;
+  pollutant?: any;
+  recommendation?: any;
   onClose: () => void;
 }
 
@@ -27,7 +29,7 @@ const modalVariants = {
     y: 0,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
   exit: {
@@ -36,7 +38,7 @@ const modalVariants = {
     y: 20,
     transition: {
       duration: 0.2,
-      ease: "easeIn",
+      ease: "easeIn" as const,
     },
   },
 };
@@ -49,13 +51,259 @@ const itemVariants = {
     transition: {
       delay: i * 0.1,
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   }),
 };
 
-export function ProtectionModal({ open, aqiLevel, onClose }: ProtectionModalProps) {
-  if (!aqiLevel) return null;
+export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onClose }: ProtectionModalProps) {
+  const isPollutant = pollutant && !aqiLevel && !recommendation;
+  const isRecommendation = recommendation && !aqiLevel && !pollutant;
+  const isAQILevel = aqiLevel && !pollutant && !recommendation;
+
+  if (!open) return null;
+
+  // Handle Pollutant Modal
+  if (isPollutant) {
+    const PollutantIcon = pollutant.icon;
+    return (
+      <AnimatePresence>
+        <Dialog open={open} onOpenChange={onClose}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <motion.div
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <DialogHeader className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                    <PollutantIcon className="w-6 h-6" style={{ color: pollutant.gradient[0] }} />
+                    {pollutant.name} - Air Pollutant
+                  </DialogTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="h-8 w-8 p-0"
+                    aria-label="Close modal"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <Badge 
+                    variant="outline" 
+                    className="text-sm font-medium border-2 px-3 py-1"
+                    style={{
+                      borderColor: pollutant.gradient[0],
+                      color: pollutant.gradient[0]
+                    }}
+                  >
+                    <Activity className="w-4 h-4 mr-2" />
+                    {pollutant.status.toUpperCase()}
+                  </Badge>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    <span>Delhi, India</span>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-6">
+                {/* Current Reading */}
+                <Card className="border-l-4" style={{ borderLeftColor: pollutant.gradient[0] }}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Activity className="w-5 h-5" style={{ color: pollutant.gradient[0] }} />
+                      Current Reading
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold mb-2" style={{ color: pollutant.gradient[0] }}>
+                      {pollutant.value} {pollutant.unit}
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {pollutant.description}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Health Effects */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-primary" />
+                      Health Effects
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {pollutant.status === "critical" && (
+                        <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+                          <p className="text-sm text-red-700 font-medium">Serious health risk - Avoid outdoor activities</p>
+                        </div>
+                      )}
+                      {pollutant.status === "unhealthy" && (
+                        <div className="p-3 rounded-lg bg-orange-50 border border-orange-200">
+                          <p className="text-sm text-orange-700 font-medium">Health effects possible - Limit outdoor activities</p>
+                        </div>
+                      )}
+                      {pollutant.status === "moderate" && (
+                        <div className="p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                          <p className="text-sm text-yellow-700 font-medium">Moderate concern - Sensitive groups should be cautious</p>
+                        </div>
+                      )}
+                      {pollutant.status === "good" && (
+                        <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                          <p className="text-sm text-green-700 font-medium">Safe levels - Normal activities can continue</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    onClick={onClose}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    Got it
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </DialogContent>
+        </Dialog>
+      </AnimatePresence>
+    );
+  }
+
+  // Handle Recommendation Modal
+  if (isRecommendation) {
+    const RecIcon = recommendation.icon;
+    return (
+      <AnimatePresence>
+        <Dialog open={open} onOpenChange={onClose}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <motion.div
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <DialogHeader className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+                    <RecIcon className="w-6 h-6" style={{ color: recommendation.gradient[0] }} />
+                    Government Recommendation
+                  </DialogTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="h-8 w-8 p-0"
+                    aria-label="Close modal"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <Badge 
+                    variant="outline" 
+                    className="text-sm font-medium border-2 px-3 py-1"
+                    style={{
+                      borderColor: recommendation.gradient[0],
+                      color: recommendation.gradient[0]
+                    }}
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    {recommendation.priority.toUpperCase()} PRIORITY
+                  </Badge>
+                  
+                  <Badge variant="secondary" className="text-sm">
+                    {recommendation.category.toUpperCase()}
+                  </Badge>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6 mt-6">
+                {/* Recommendation Details */}
+                <Card className="border-l-4" style={{ borderLeftColor: recommendation.gradient[0] }}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Info className="w-5 h-5" style={{ color: recommendation.gradient[0] }} />
+                      Detailed Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed mb-4">
+                      {recommendation.details}
+                    </p>
+                    <div className="p-3 rounded-lg bg-muted/50">
+                      <p className="text-sm font-medium">{recommendation.title}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Implementation Guidelines */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="w-5 h-5 text-primary" />
+                      Implementation Guidelines
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                          1
+                        </div>
+                        <p className="text-sm leading-relaxed">Follow the recommendation immediately based on priority level</p>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                          2
+                        </div>
+                        <p className="text-sm leading-relaxed">Monitor air quality updates for changes in conditions</p>
+                      </div>
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                          3
+                        </div>
+                        <p className="text-sm leading-relaxed">Report any violations or concerns to authorities</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    onClick={onClose}
+                    className="flex-1"
+                    variant="outline"
+                  >
+                    Got it
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </DialogContent>
+        </Dialog>
+      </AnimatePresence>
+    );
+  }
+
+  // Handle AQI Level Modal (existing code)
+  if (!isAQILevel) return null;
 
   const qList = (questions as Record<string, string[]>)[aqiLevel.name] || [];
   
