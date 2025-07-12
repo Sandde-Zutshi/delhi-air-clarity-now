@@ -99,7 +99,7 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
             }}
           />
         </div>
-        <div className="flex justify-center gap-3">
+        <div className="flex justify-center">
           {onLearnMore && (
             <Button
               onClick={() => onLearnMore({ 
@@ -123,14 +123,6 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
               Learn More
             </Button>
           )}
-          <StatusButton
-            color={gradient[0]}
-            aria-label="Last updated time for air quality data"
-            className="text-sm font-medium border-2 px-6 py-2 animate-fade-in"
-          >
-            <Activity className="w-3 h-3 mr-2" aria-hidden="true" />
-            Updated: {new Date().toLocaleTimeString()}
-          </StatusButton>
         </div>
       </CardContent>
     </Card>

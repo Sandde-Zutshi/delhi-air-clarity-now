@@ -145,9 +145,14 @@ const Index = () => {
               </p>
             </div>
             <div className="flex items-center gap-6 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <div className="flex items-center gap-2 glass-card px-3 py-2 rounded-lg">
-                <Clock className="w-4 h-4" />
-                <span>{lastFetch ? lastFetch.toLocaleString() : 'Loading...'}</span>
+              <div className="flex items-center gap-2 glass-card px-4 py-3 rounded-lg border-2 border-primary/20 bg-primary/5">
+                <Clock className="w-5 h-5 text-primary animate-pulse-soft" />
+                <div className="text-center">
+                  <div className="text-xs text-muted-foreground font-medium">Last Updated</div>
+                  <div className="text-sm font-semibold text-primary">
+                    {lastFetch ? lastFetch.toLocaleTimeString() : 'Loading...'}
+                  </div>
+                </div>
               </div>
               <div className={cn(
                 "flex items-center gap-2 glass-card px-3 py-2 rounded-lg transition-all",
