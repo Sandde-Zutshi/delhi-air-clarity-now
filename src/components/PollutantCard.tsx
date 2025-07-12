@@ -310,7 +310,15 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
         {onLearnMore && (
           <div className="flex justify-center mt-2">
             <Button
-              onClick={() => onLearnMore(name)}
+              onClick={() => onLearnMore({
+                name,
+                value,
+                unit,
+                status,
+                gradient: colorInfo.gradient,
+                icon: PollutantIcon,
+                description: getPollutantDescription(name)
+              })}
               variant="outline"
               size="sm"
               className="text-sm font-medium border-2 px-4 py-2 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
