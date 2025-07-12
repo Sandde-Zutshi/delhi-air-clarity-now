@@ -25,6 +25,7 @@ export default function Index() {
     remainingManualRefreshes
   } = useAQI({ initialLocation: 'Delhi' });
   const [showProtectionModal, setShowProtectionModal] = useState(false);
+  const [modalData, setModalData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -244,7 +245,10 @@ export default function Index() {
                   source={data.source}
                   aqiLevel={data.aqiLevel}
                   healthImplications={data.healthImplications}
-                  onLearnMore={(level) => setShowProtectionModal(true)}
+                  onLearnMore={(level) => {
+                    setModalData({ type: 'aqi', data: level });
+                    setShowProtectionModal(true);
+                  }}
                 />
               </div>
               <div className="lg:col-span-2">
@@ -256,7 +260,10 @@ export default function Index() {
                     trend={getPollutantTrend(data.pollutants.pm2_5)}
                     trendValue={getTrendValue(data.pollutants.pm2_5)}
                     status={getPollutantStatus("PM2.5", data.pollutants.pm2_5)}
-                    onLearnMore={(pollutant) => setShowProtectionModal(true)}
+                    onLearnMore={(pollutant) => {
+                      setModalData({ type: 'pollutant', data: pollutant });
+                      setShowProtectionModal(true);
+                    }}
                   />
                   <PollutantCard 
                     name="PM10" 
@@ -265,7 +272,10 @@ export default function Index() {
                     trend={getPollutantTrend(data.pollutants.pm10)}
                     trendValue={getTrendValue(data.pollutants.pm10)}
                     status={getPollutantStatus("PM10", data.pollutants.pm10)}
-                    onLearnMore={(pollutant) => setShowProtectionModal(true)}
+                    onLearnMore={(pollutant) => {
+                      setModalData({ type: 'pollutant', data: pollutant });
+                      setShowProtectionModal(true);
+                    }}
                   />
                   <PollutantCard 
                     name="NO2" 
@@ -274,7 +284,10 @@ export default function Index() {
                     trend={getPollutantTrend(data.pollutants.no2)}
                     trendValue={getTrendValue(data.pollutants.no2)}
                     status={getPollutantStatus("NO2", data.pollutants.no2)}
-                    onLearnMore={(pollutant) => setShowProtectionModal(true)}
+                    onLearnMore={(pollutant) => {
+                      setModalData({ type: 'pollutant', data: pollutant });
+                      setShowProtectionModal(true);
+                    }}
                   />
                   <PollutantCard 
                     name="CO" 
@@ -283,7 +296,10 @@ export default function Index() {
                     trend={getPollutantTrend(data.pollutants.co)}
                     trendValue={getTrendValue(data.pollutants.co)}
                     status={getPollutantStatus("CO", data.pollutants.co)}
-                    onLearnMore={(pollutant) => setShowProtectionModal(true)}
+                    onLearnMore={(pollutant) => {
+                      setModalData({ type: 'pollutant', data: pollutant });
+                      setShowProtectionModal(true);
+                    }}
                   />
                   <PollutantCard 
                     name="O3" 
@@ -292,7 +308,10 @@ export default function Index() {
                     trend={getPollutantTrend(data.pollutants.o3)}
                     trendValue={getTrendValue(data.pollutants.o3)}
                     status={getPollutantStatus("O3", data.pollutants.o3)}
-                    onLearnMore={(pollutant) => setShowProtectionModal(true)}
+                    onLearnMore={(pollutant) => {
+                      setModalData({ type: 'pollutant', data: pollutant });
+                      setShowProtectionModal(true);
+                    }}
                   />
                   <PollutantCard 
                     name="SO2" 
@@ -301,7 +320,10 @@ export default function Index() {
                     trend={getPollutantTrend(data.pollutants.so2)}
                     trendValue={getTrendValue(data.pollutants.so2)}
                     status={getPollutantStatus("SO2", data.pollutants.so2)}
-                    onLearnMore={(pollutant) => setShowProtectionModal(true)}
+                    onLearnMore={(pollutant) => {
+                      setModalData({ type: 'pollutant', data: pollutant });
+                      setShowProtectionModal(true);
+                    }}
                   />
                 </div>
               </div>
@@ -310,7 +332,10 @@ export default function Index() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RecommendationsCard 
                 aqi={data.aqi} 
-                onLearnMore={(recommendation) => setShowProtectionModal(true)}
+                onLearnMore={(recommendation) => {
+                  setModalData({ type: 'recommendation', data: recommendation });
+                  setShowProtectionModal(true);
+                }}
               />
               <div 
                 className="rounded-lg p-6 shadow-sm border-2 transition-all duration-300"
@@ -410,9 +435,14 @@ export default function Index() {
               {/* Protection Modal */}
         <ProtectionModal 
           open={showProtectionModal} 
-          onClose={() => setShowProtectionModal(false)} 
-          aqiLevel={null}
+          onClose={() => {
+            setShowProtectionModal(false);
+            setModalData(null);
+          }} 
+          aqiLevel={modalData?.type === 'aqi' ? modalData.data : null}
           aqiValue={data.aqi}
+          pollutant={modalData?.type === 'pollutant' ? modalData.data : undefined}
+          recommendation={modalData?.type === 'recommendation' ? modalData.data : undefined}
         />
 
       {/* Footer */}
