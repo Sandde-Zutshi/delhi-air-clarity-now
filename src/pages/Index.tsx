@@ -9,6 +9,7 @@ import { HealthGuidanceCard } from '@/components/HealthGuidanceCard';
 import { ForecastCard } from '@/components/ForecastCard';
 import { HistoricalDataCard } from '@/components/HistoricalDataCard';
 import { RemediesCard } from '@/components/RemediesCard';
+import { EmergencyAlertBanner } from '@/components/EmergencyAlertBanner';
 import { getPollutantStatus, getPollutantTrend, getTrendValue } from '@/lib/pollutant-utils';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,88 +29,7 @@ export default function Index() {
   const [modalData, setModalData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Helper functions for dynamic alert styling
-  const getAlertGradient = (aqi: number) => {
-    if (aqi <= 50) return 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
-    if (aqi <= 100) return 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)';
-    if (aqi <= 150) return 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)';
-    if (aqi <= 200) return 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)';
-    if (aqi <= 300) return 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)';
-    return 'linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%)';
-  };
-
-  const getAlertBorderColor = (aqi: number) => {
-    if (aqi <= 50) return '#10B981';
-    if (aqi <= 100) return '#F59E0B';
-    if (aqi <= 150) return '#F97316';
-    if (aqi <= 200) return '#EF4444';
-    if (aqi <= 300) return '#8B5CF6';
-    return '#7F1D1D';
-  };
-
-  const getAlertIconColor = (aqi: number) => {
-    if (aqi <= 50) return '#FFFFFF';
-    if (aqi <= 100) return '#FFFFFF';
-    if (aqi <= 150) return '#FFFFFF';
-    if (aqi <= 200) return '#FFFFFF';
-    if (aqi <= 300) return '#FFFFFF';
-    return '#FFFFFF';
-  };
-
-  const getAlertTextColor = (aqi: number) => {
-    if (aqi <= 50) return '#FFFFFF';
-    if (aqi <= 100) return '#FFFFFF';
-    if (aqi <= 150) return '#FFFFFF';
-    if (aqi <= 200) return '#FFFFFF';
-    if (aqi <= 300) return '#FFFFFF';
-    return '#FFFFFF';
-  };
-
-  const getAlertTitle = (aqi: number) => {
-    if (aqi <= 50) return 'Good Air Quality';
-    if (aqi <= 100) return 'Moderate Air Quality';
-    if (aqi <= 150) return 'Unhealthy for Sensitive Groups';
-    if (aqi <= 200) return 'Unhealthy Air Quality';
-    if (aqi <= 300) return 'Very Unhealthy Air Quality';
-    return 'Hazardous Air Quality';
-  };
-
-  const getAlertMessage = (aqi: number) => {
-    if (aqi <= 50) return 'Air quality is good. Enjoy outdoor activities safely.';
-    if (aqi <= 100) return 'Air quality is acceptable. Sensitive groups should limit outdoor activities.';
-    if (aqi <= 150) return 'Sensitive groups should avoid outdoor activities. Others should limit prolonged exertion.';
-    if (aqi <= 200) return 'Everyone should avoid outdoor activities. Stay indoors with windows closed.';
-    if (aqi <= 300) return 'Health emergency. Avoid all outdoor activities. Use air purifiers indoors.';
-    return 'Health emergency. Remain indoors. Use air purifiers and masks if going outside is necessary.';
-  };
-
-  const getAlertButtonBg = (aqi: number) => {
-    if (aqi <= 50) return '#FFFFFF';
-    if (aqi <= 100) return '#FFFFFF';
-    if (aqi <= 150) return '#FFFFFF';
-    if (aqi <= 200) return '#FFFFFF';
-    if (aqi <= 300) return '#FFFFFF';
-    return '#FFFFFF';
-  };
-
-  const getAlertButtonText = (aqi: number) => {
-    if (aqi <= 50) return '#10B981';
-    if (aqi <= 100) return '#F59E0B';
-    if (aqi <= 150) return '#F97316';
-    if (aqi <= 200) return '#EF4444';
-    if (aqi <= 300) return '#8B5CF6';
-    return '#7F1D1D';
-  };
-
-  const getAlertButtonBorder = (aqi: number) => {
-    if (aqi <= 50) return '#10B981';
-    if (aqi <= 100) return '#F59E0B';
-    if (aqi <= 150) return '#F97316';
-    if (aqi <= 200) return '#EF4444';
-    if (aqi <= 300) return '#8B5CF6';
-    return '#7F1D1D';
-  };
+  const [showEmergencyBanner, setShowEmergencyBanner] = useState(true);
 
   const handleRefresh = async () => {
     if (!canManualRefresh) {
@@ -177,6 +97,15 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Emergency Alert Banner */}
+      {data && showEmergencyBanner && (
+        <EmergencyAlertBanner
+          aqi={data.aqi}
+          onDismiss={() => setShowEmergencyBanner(false)}
+          onViewHealth={() => setActiveTab('health')}
+        />
+      )}
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
@@ -337,58 +266,35 @@ export default function Index() {
                   setShowProtectionModal(true);
                 }}
               />
-              <div 
-                className="rounded-lg p-6 shadow-sm border-2 transition-all duration-300"
-                style={{
-                  background: getAlertGradient(data.aqi),
-                  borderColor: getAlertBorderColor(data.aqi)
-                }}
-              >
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" style={{ color: getAlertIconColor(data.aqi) }} />
-                  <span style={{ color: getAlertTextColor(data.aqi) }}>
-                    {getAlertTitle(data.aqi)}
-                  </span>
+              <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
+                  <Heart className="w-5 h-5 text-red-500" />
+                  Health Summary
                 </h3>
-                <p className="text-sm mb-4" style={{ color: getAlertTextColor(data.aqi) }}>
-                  {getAlertMessage(data.aqi)}
+                <p className="text-sm text-gray-700 mb-4">
+                  Get detailed health guidance, personalized recommendations, and emergency protocols based on current air quality conditions.
                 </p>
                 
-                {/* Emergency Numbers */}
-                <div className="mb-4 p-3 rounded-lg bg-white/20 backdrop-blur-sm">
-                  <h4 className="font-medium mb-2 text-sm" style={{ color: getAlertTextColor(data.aqi) }}>
-                    🚨 Emergency Contacts
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">SOS:</span>
-                      <span>112</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">Police:</span>
-                      <span>100</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">Ambulance:</span>
-                      <span>102</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">Fire:</span>
-                      <span>101</span>
-                    </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-gray-700">Current AQI: {data.aqi} ({data.aqiLevel})</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-gray-700">Last Updated: {data.lastUpdated.toLocaleTimeString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-700">Data Source: {data.source}</span>
                   </div>
                 </div>
                 
                 <Button 
                   onClick={() => setActiveTab('health')}
-                  className="w-full font-medium"
-                  style={{
-                    backgroundColor: getAlertButtonBg(data.aqi),
-                    color: getAlertButtonText(data.aqi),
-                    borderColor: getAlertButtonBorder(data.aqi)
-                  }}
+                  className="w-full mt-4 font-medium bg-red-500 hover:bg-red-600 text-white"
                 >
-                  View Health Guidance
+                  View Detailed Health Guidance
                 </Button>
               </div>
             </div>
