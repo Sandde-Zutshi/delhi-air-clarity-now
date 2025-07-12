@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatusButton, Button } from "@/components/ui/button";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { TrendingUp, TrendingDown, Minus, Flame, Droplets, Wind, Zap, Car, Factory } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Flame, Droplets, Wind, Zap, Car, Factory, Home, Leaf, Train, Bus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PollutantCardProps {
@@ -34,6 +34,18 @@ const getPollutantDescription = (name: string) => {
   if (lowerName.includes('o3')) return "Ground-level ozone, formed by chemical reactions between pollutants in sunlight.";
   if (lowerName.includes('co')) return "Carbon monoxide, a colorless, odorless gas from incomplete combustion.";
   return "Air pollutant that can affect human health and the environment.";
+};
+
+// Utility to get the most common source icon and label for each pollutant
+const getPollutantSource = (name: string) => {
+  const lowerName = name.toLowerCase();
+  if (lowerName.includes('pm2.5')) return { icon: Flame, label: 'Combustion (vehicles, stubble burning, wood, etc.)' };
+  if (lowerName.includes('pm10')) return { icon: Factory, label: 'Construction, road dust, industry' };
+  if (lowerName.includes('no2')) return { icon: Car, label: 'Vehicle emissions' };
+  if (lowerName.includes('so2')) return { icon: Factory, label: 'Coal power plants, industry' };
+  if (lowerName.includes('o3')) return { icon: Wind, label: 'Photochemical reactions (sunlight + pollution)' };
+  if (lowerName.includes('co')) return { icon: Home, label: 'Incomplete combustion (homes, vehicles)' };
+  return { icon: Leaf, label: 'General air pollutant' };
 };
 
 const statusConfig = {
@@ -82,6 +94,7 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
   const TrendIcon = trendIcons[trend];
   const PollutantIcon = getPollutantIcon(name);
   const description = getPollutantDescription(name);
+  const source = getPollutantSource(name);
   // Dynamic gradient background style
   const cardGradient: React.CSSProperties = {
     background: `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`,
@@ -118,14 +131,16 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
                 </Tooltip>
                 {name}
               </div>
+              {/* Top-right: Source icon with tooltip */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span>
-                    <StatusButton color={config.color} aria-label={`Pollutant status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}> &nbsp; </StatusButton>
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-white/40 border border-white/60 shadow-sm">
+                    <source.icon className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  <span className="text-xs font-medium">Most common source:</span><br />
+                  {source.label}
                 </TooltipContent>
               </Tooltip>
             </CardTitle>
