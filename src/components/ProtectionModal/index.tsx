@@ -12,6 +12,103 @@ import questionsData from './questions.json';
 type QA = { q: string; a: string };
 const questions: Record<string, QA[]> = questionsData;
 
+// Function to generate dynamic questions based on pollutant values
+const generateDynamicQuestions = (pollutant?: any, aqiValue?: number): QA[] => {
+  if (!pollutant && !aqiValue) return [];
+
+  const dynamicQuestions: QA[] = [];
+
+  if (pollutant) {
+    const { name, value, unit, status } = pollutant;
+    
+    // PM2.5 specific questions
+    if (name === "PM2.5") {
+      if (value > 35.4) {
+        dynamicQuestions.push({
+          q: `PM2.5 is ${value} ${unit} - what does this mean?`,
+          a: `PM2.5 levels above 35.4 μg/m³ are unhealthy. These fine particles can penetrate deep into lungs and cause respiratory issues.`
+        });
+        dynamicQuestions.push({
+          q: "How can I protect myself from high PM2.5?",
+          a: "Use N95 masks, stay indoors, use air purifiers with HEPA filters, and avoid outdoor exercise."
+        });
+      } else if (value > 12) {
+        dynamicQuestions.push({
+          q: `PM2.5 is ${value} ${unit} - is this concerning?`,
+          a: `PM2.5 levels between 12-35.4 μg/m³ are moderate. Sensitive groups should limit outdoor activities.`
+        });
+      }
+    }
+
+    // PM10 specific questions
+    if (name === "PM10") {
+      if (value > 154) {
+        dynamicQuestions.push({
+          q: `PM10 is ${value} ${unit} - what precautions should I take?`,
+          a: `PM10 levels above 154 μg/m³ are unhealthy. Avoid outdoor activities, keep windows closed, and use air purifiers.`
+        });
+      }
+    }
+
+    // NO2 specific questions
+    if (name === "NO2") {
+      if (value > 100) {
+        dynamicQuestions.push({
+          q: `NO2 is ${value} ${unit} - what are the health risks?`,
+          a: `High NO2 levels can cause respiratory inflammation, reduced lung function, and increased asthma attacks.`
+        });
+      }
+    }
+
+    // O3 specific questions
+    if (name === "O3") {
+      if (value > 70) {
+        dynamicQuestions.push({
+          q: `Ozone is ${value} ${unit} - when is it worst?`,
+          a: `Ozone levels are typically highest in the afternoon. Plan outdoor activities for early morning or evening.`
+        });
+      }
+    }
+
+    // CO specific questions
+    if (name === "CO") {
+      if (value > 9.4) {
+        dynamicQuestions.push({
+          q: `CO is ${value} ${unit} - what are the symptoms?`,
+          a: `High CO levels can cause headaches, dizziness, nausea, and confusion. Seek fresh air immediately.`
+        });
+      }
+    }
+
+    // SO2 specific questions
+    if (name === "SO2") {
+      if (value > 75) {
+        dynamicQuestions.push({
+          q: `SO2 is ${value} ${unit} - what should I do?`,
+          a: `High SO2 levels can irritate eyes, nose, and throat. Stay indoors and use air conditioning if available.`
+        });
+      }
+    }
+  }
+
+  // AQI level specific questions
+  if (aqiValue) {
+    if (aqiValue >= 4) {
+      dynamicQuestions.push({
+        q: `AQI is ${aqiValue}/5 - what does this mean for Delhi?`,
+        a: `AQI level ${aqiValue} indicates poor air quality. Follow government advisories and limit outdoor activities.`
+      });
+    } else if (aqiValue >= 3) {
+      dynamicQuestions.push({
+        q: `AQI is ${aqiValue}/5 - should I be concerned?`,
+        a: `AQI level ${aqiValue} indicates moderate air quality. Sensitive groups should take precautions.`
+      });
+    }
+  }
+
+  return dynamicQuestions;
+};
+
 interface ProtectionModalProps {
   open: boolean;
   aqiLevel: AQILevel | null;
@@ -82,6 +179,21 @@ export function ProtectionModal({ open, aqiLevel, aqiValue, pollutant, recommend
   // Handle Pollutant Modal
   if (isPollutant) {
     const PollutantIcon = pollutant.icon;
+    // Generate dynamic questions based on pollutant values
+    const dynamicQuestions = generateDynamicQuestions(pollutant, aqiValue);
+    
+    // Map pollutant status to AQI level for questions.json
+    const statusToAQI = {
+      good: "Good",
+      moderate: "Moderate",
+      unhealthy: "Unhealthy",
+      critical: "Hazardous"
+    };
+    const staticQuestions: QA[] = questions[statusToAQI[pollutant.status]] || [];
+    
+    // Combine static and dynamic questions, prioritizing dynamic ones
+    const allQuestions = [...dynamicQuestions, ...staticQuestions].slice(0, 5);
+    
     return (
       <AnimatePresence>
         <Dialog open={open} onOpenChange={onClose}>
@@ -173,53 +285,42 @@ export function ProtectionModal({ open, aqiLevel, aqiValue, pollutant, recommend
                   </CardContent>
                 </Card>
 
-                {/* Suggestions/Questions for Pollutant Status */}
-                {(() => {
-                  // Map pollutant status to AQI level for questions.json
-                  const statusToAQI = {
-                    good: "Good",
-                    moderate: "Moderate",
-                    unhealthy: "Unhealthy",
-                    critical: "Hazardous"
-                  };
-                  const qList: QA[] = questions[statusToAQI[pollutant.status]] || [];
-                  if (qList.length === 0) return null;
-                  return (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Users className="w-5 h-5 text-primary" />
-                          Top 5 Questions for {statusToAQI[pollutant.status]} Air Quality
-                        </CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Essential information to protect yourself and your family
-                        </p>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          {qList.map((item, index) => (
-                            <motion.div
-                              key={index}
-                              custom={index}
-                              variants={itemVariants}
-                              initial="hidden"
-                              animate="visible"
-                              className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
-                            >
-                              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
-                                {index + 1}
-                              </div>
-                              <div className="flex-1">
-                                <div className="font-medium text-sm mb-1">{item.q}</div>
-                                <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })()}
+                {/* Dynamic Questions */}
+                {allQuestions.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Users className="w-5 h-5 text-primary" />
+                        Top 5 Questions for {pollutant.name} ({pollutant.value} {pollutant.unit})
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Essential information based on current {pollutant.name} levels
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {allQuestions.map((item, index) => (
+                          <motion.div
+                            key={index}
+                            custom={index}
+                            variants={itemVariants}
+                            initial="hidden"
+                            animate="visible"
+                            className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                          >
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                              {index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-sm mb-1">{item.q}</div>
+                              <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
@@ -447,104 +548,86 @@ export function ProtectionModal({ open, aqiLevel, aqiValue, pollutant, recommend
                     className={cn("text-sm font-medium border-2 px-3 py-1", getSeverityColor())}
                     aria-label={`Protection level: ${aqiLevel?.protectionLevel}`}
                   >
-                    <Shield className="w-4 h-4 mr-2" aria-hidden="true" />
+                    <Shield className="w-4 h-4 mr-2" />
                     {aqiLevel?.protectionLevel}
                   </Badge>
                   
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" aria-hidden="true" />
+                    <MapPin className="w-4 h-4" />
                     <span>Delhi, India</span>
                   </div>
+                  
+                  {aqiValue && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Activity className="w-4 h-4" />
+                      <span>AQI: {aqiValue}/5</span>
+                    </div>
+                  )}
                 </div>
-                {/* AQI Value Display */}
-                {typeof aqiValue === 'number' && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-lg font-semibold text-foreground">AQI:</span>
-                    <span className="text-3xl font-extrabold text-primary">{aqiValue}</span>
-                  </div>
-                )}
               </DialogHeader>
 
               <div className="space-y-6 mt-6">
-                {/* Description Card */}
-                <Card className="border-l-4 border-l-primary">
+                {/* AQI Level Description */}
+                <Card className="border-l-4" style={{ borderLeftColor: aqiLevel.gradient[0] }}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-primary" aria-hidden="true" />
-                      Current Situation
+                      <Info className="w-5 h-5" style={{ color: aqiLevel.gradient[0] }} />
+                      Air Quality Level: {aqiLevel.name}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed mb-4">
                       {aqiLevel.description}
                     </p>
-                  </CardContent>
-                </Card>
-
-                {/* Top Questions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Users className="w-5 h-5 text-primary" aria-hidden="true" />
-                      Top 5 Questions for {aqiLevel?.name} Air Quality
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Essential information to protect yourself and your family
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {qList.map((item, index) => (
-                        <motion.div
-                          key={index}
-                          custom={index}
-                          variants={itemVariants}
-                          initial="hidden"
-                          animate="visible"
-                          className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
-                        >
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-sm mb-1">{item.q}</div>
-                            <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
-                          </div>
-                        </motion.div>
-                      ))}
+                    <div className="p-3 rounded-lg bg-muted/50">
+                      <p className="text-sm font-medium">Protection Level: {aqiLevel.protectionLevel}</p>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Emergency Information */}
-                {(aqiLevel.name === "Very Unhealthy" || aqiLevel.name === "Hazardous") && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <Card className="border-l-4 border-l-destructive bg-destructive/5">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center gap-2 text-destructive">
-                          <AlertTriangle className="w-5 h-5" aria-hidden="true" />
-                          Emergency Information
+                {/* Dynamic Questions for AQI Level */}
+                {(() => {
+                  const dynamicQuestions = generateDynamicQuestions(undefined, aqiValue);
+                  const allQuestions = [...dynamicQuestions, ...qList].slice(0, 5);
+                  
+                  if (allQuestions.length === 0) return null;
+                  
+                  return (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          Top 5 Questions for {aqiLevel.name} Air Quality
                         </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Essential information to protect yourself and your family
+                        </p>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <Clock className="w-4 h-4 text-destructive" />
-                            <span className="text-sm font-medium">Emergency Hotline: 1800-XXX-XXXX</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            If you experience severe symptoms like difficulty breathing, chest pain, or dizziness, 
-                            seek immediate medical attention.
-                          </p>
+                          {allQuestions.map((item, index) => (
+                            <motion.div
+                              key={index}
+                              custom={index}
+                              variants={itemVariants}
+                              initial="hidden"
+                              animate="visible"
+                              className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                            >
+                              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                                {index + 1}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium text-sm mb-1">{item.q}</div>
+                                <div className="text-xs text-muted-foreground leading-normal">{item.a}</div>
+                              </div>
+                            </motion.div>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>
-                  </motion.div>
-                )}
+                  );
+                })()}
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
@@ -552,19 +635,8 @@ export function ProtectionModal({ open, aqiLevel, aqiValue, pollutant, recommend
                     onClick={onClose}
                     className="flex-1"
                     variant="outline"
-                    aria-label="Close protection modal"
                   >
                     Got it
-                  </Button>
-                  <Button 
-                    className="flex-1"
-                    onClick={() => {
-                      // Could open emergency contacts or additional resources
-                      window.open('tel:1800-XXX-XXXX', '_self');
-                    }}
-                    aria-label="Call emergency hotline"
-                  >
-                    Call Emergency
                   </Button>
                 </div>
               </div>
