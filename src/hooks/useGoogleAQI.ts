@@ -55,30 +55,56 @@ export function useGoogleAQI(
 
     const fetchGoogleAQI = async () => {
       try {
-        // Use Google's Air Quality API endpoint
-        const response = await fetch(
+        // Try multiple possible Google AQI API endpoints
+        const endpoints = [
+          `https://airquality.googleapis.com/v1/currentConditions:lookup?key=${API_KEY_TO_USE}&languageCode=en`,
           `https://airquality.googleapis.com/v1/currentConditions:lookup?key=${API_KEY_TO_USE}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              location: {
-                latitude,
-                longitude,
-              },
-              extraComputations: ['HEALTH_RECOMMENDATIONS', 'DOMINANT_POLLUTANT_CONCENTRATION'],
-              languageCode: 'en',
-            }),
-          }
-        );
+          `https://airquality.googleapis.com/v1/currentConditions?key=${API_KEY_TO_USE}&location.latitude=${latitude}&location.longitude=${longitude}`
+        ];
 
-        if (!response.ok) {
-          throw new Error(`Google AQI API error: ${response.status} ${response.statusText}`);
+        let result;
+        let lastError;
+
+        for (const endpoint of endpoints) {
+          try {
+            console.log('Trying endpoint:', endpoint);
+            
+            const response = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                location: {
+                  latitude,
+                  longitude,
+                },
+                extraComputations: ['HEALTH_RECOMMENDATIONS'],
+              }),
+            });
+
+            if (!response.ok) {
+              console.error('API Response Status:', response.status);
+              console.error('API Response Status Text:', response.statusText);
+              throw new Error(`Google AQI API error: ${response.status} ${response.statusText}`);
+            }
+
+            result = await response.json();
+            console.log('Success with endpoint:', endpoint);
+            break; // Success, exit the loop
+          } catch (error) {
+            console.log('Failed with endpoint:', endpoint, error);
+            lastError = error;
+            continue; // Try next endpoint
+          }
         }
 
-        const result = await response.json();
+        if (!result) {
+          throw lastError || new Error('All Google AQI API endpoints failed');
+        }
+
+        // Debug: Log the full API response
+        console.log('Google AQI API Response:', result);
 
         if (result.error) {
           throw new Error(`Google AQI API error: ${result.error.message}`);
@@ -86,21 +112,44 @@ export function useGoogleAQI(
 
         // Extract and normalize data from Google's response
         const currentConditions = result.currentConditions;
-        if (!currentConditions) {
-          throw new Error('No current conditions data available');
+        console.log('Current Conditions:', currentConditions);
+        console.log('Response keys:', Object.keys(result));
+        
+        // Try different possible response structures
+        let airQualityData = currentConditions;
+        
+        if (!airQualityData && result.data) {
+          airQualityData = result.data;
+          console.log('Using result.data instead of currentConditions');
+        }
+        
+        if (!airQualityData && result.airQuality) {
+          airQualityData = result.airQuality;
+          console.log('Using result.airQuality instead of currentConditions');
+        }
+        
+        if (!airQualityData) {
+          console.log('No currentConditions found in response');
+          console.log('Available keys in result:', Object.keys(result));
+          throw new Error(`No air quality data available. Response structure: ${JSON.stringify(Object.keys(result))}`);
         }
 
+        // Debug: Log the structure of currentConditions
+        console.log('Air Quality Data structure:', airQualityData);
+        console.log('Air Quality Data keys:', Object.keys(airQualityData));
+
         const normalizedData: GoogleAQIData = {
-          aqi: currentConditions.aqi || undefined,
-          pm25: currentConditions.pm25?.concentration || undefined,
-          pm10: currentConditions.pm10?.concentration || undefined,
-          no2: currentConditions.no2?.concentration || undefined,
-          co: currentConditions.co?.concentration || undefined,
-          o3: currentConditions.o3?.concentration || undefined,
-          so2: currentConditions.so2?.concentration || undefined,
+          aqi: airQualityData.aqi || airQualityData.index || undefined,
+          pm25: airQualityData.pm25?.concentration || airQualityData.pm25 || airQualityData.pm2_5 || undefined,
+          pm10: airQualityData.pm10?.concentration || airQualityData.pm10 || undefined,
+          no2: airQualityData.no2?.concentration || airQualityData.no2 || undefined,
+          co: airQualityData.co?.concentration || airQualityData.co || undefined,
+          o3: airQualityData.o3?.concentration || airQualityData.o3 || undefined,
+          so2: airQualityData.so2?.concentration || airQualityData.so2 || undefined,
           timestamp: Date.now(),
         };
 
+        console.log('Normalized data:', normalizedData);
         setData(normalizedData);
       } catch (err) {
         console.error('Google AQI fetch error:', err);
