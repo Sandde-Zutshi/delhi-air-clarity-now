@@ -1,73 +1,114 @@
-# Welcome to your Lovable project
+# Delhi Air Clarity Now
 
-## Project info
+A comprehensive government crisis management system for real-time Delhi air quality monitoring and public safety.
 
-**URL**: https://lovable.dev/projects/468fbbfd-ad81-4a4e-9d78-c15588c942be
+## 🌬️ Project Overview
 
-## How can I edit this code?
+**Delhi Air Clarity Now** is a Progressive Web App (PWA) designed for the Delhi Pollution Control Committee to provide real-time air quality monitoring, pollutant tracking, and emergency recommendations to the public.
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+### Real-time Monitoring
+- **Live AQI Tracking**: Real-time Air Quality Index with trend analysis
+- **Multi-Pollutant Monitoring**: PM2.5, PM10, NO2, CO, O3, SO2 levels
+- **Connection Status**: Live data connection monitoring
+- **Auto-refresh**: Data updates every 15 minutes
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/468fbbfd-ad81-4a4e-9d78-c15588c942be) and start prompting.
+### Government Crisis Management
+- **Emergency Hotline Integration**: Direct access to emergency services
+- **Public Safety Alerts**: Real-time recommendations based on AQI levels
+- **Hotspot Mapping**: Identify high-pollution areas across Delhi
+- **Trend Analysis**: Historical data comparison and forecasting
 
-Changes made via Lovable will be committed automatically to this repo.
+### User Experience
+- **Progressive Web App**: Installable on mobile devices
+- **Responsive Design**: Works on all devices and screen sizes
+- **Accessibility**: WCAG compliant with screen reader support
+- **Offline Capability**: Basic functionality when internet is unavailable
 
-**Use your preferred IDE**
+## 🛠️ Technology Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **UI Framework**: shadcn/ui components
+- **Styling**: Tailwind CSS
+- **State Management**: TanStack Query
+- **Routing**: React Router
+- **PWA**: Service Worker for offline functionality
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📱 Installation & Development
 
-Follow these steps:
+### Prerequisites
+- Node.js (version 18 or higher)
+- npm or yarn
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Local Development
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```bash
+# Clone the repository
+git clone https://github.com/Sandde-Zutshi/delhi-air-clarity-now.git
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Navigate to project directory
+cd delhi-air-clarity-now
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
+
+# Open http://localhost:5173 in your browser
 ```
 
-**Edit a file directly in GitHub**
+### Building for Production
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Create optimized production build
+npm run build
 
-**Use GitHub Codespaces**
+# Preview production build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🏛️ Government Integration
 
-## What technologies are used for this project?
+This system is designed to integrate with:
+- **Delhi Pollution Control Committee** monitoring stations
+- **Central Pollution Control Board** data feeds
+- **Emergency response systems**
+- **Public notification services**
 
-This project is built with:
+## 📊 Data Sources
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Real-time monitoring station data
+- Satellite-based pollution tracking
+- Meteorological data integration
+- Traffic and industrial emission data
 
-## How can I deploy this project?
+## 🔧 Configuration
 
-Simply open [Lovable](https://lovable.dev/projects/468fbbfd-ad81-4a4e-9d78-c15588c942be) and click on Share -> Publish.
+The application can be configured for:
+- Different monitoring stations
+- Custom alert thresholds
+- Emergency contact information
+- Government branding requirements
 
-## Can I connect a custom domain to my Lovable project?
+## 📞 Emergency Contacts
 
-Yes, you can!
+- **Emergency Hotline**: 1800-XXX-XXXX
+- **Delhi Pollution Control Committee**: [Contact Information]
+- **Central Pollution Control Board**: [Contact Information]
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🤝 Contributing
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This is a government project. For contributions, please contact the Delhi Pollution Control Committee.
+
+## 📄 License
+
+Government of India - Delhi Pollution Control Committee
+
+---
+
+**System Status**: Operational  
+**Last Updated**: Real-time  
+**Data Source**: Government Monitoring Stations
