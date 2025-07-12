@@ -1,114 +1,143 @@
-# Delhi Air Clarity Now
+# Delhi Air Clarity - Government Crisis Management System
 
-A comprehensive government crisis management system for real-time Delhi air quality monitoring and public safety.
+A comprehensive air quality monitoring dashboard for Delhi, India, featuring real-time data from multiple sources including CPCB (Central Pollution Control Board), Google Air Quality API, and OpenWeatherMap.
 
-## 🌬️ Project Overview
+## Features
 
-**Delhi Air Clarity Now** is a Progressive Web App (PWA) designed for the Delhi Pollution Control Committee to provide real-time air quality monitoring, pollutant tracking, and emergency recommendations to the public.
+- **Multi-Source Data Integration**: Real-time air quality data from three sources
+  - CPCB Official Data (PM, SO2, BOD, COD, pH)
+  - Google Air Quality API (PM2.5, PM10, NO2, CO, O3, SO2)
+  - OpenWeatherMap (PM2.5, PM10, NO2, CO, O3, SO2)
+- **Dynamic AQI Cards**: Color-coded air quality indicators with gradient backgrounds
+- **Interactive Protection Modals**: Detailed health recommendations and Q&A
+- **Source Icons**: Visual indicators for pollutant sources
+- **Responsive Design**: Mobile-friendly government-grade interface
+- **Real-time Updates**: Auto-refresh every 5 minutes
 
-## 🚀 Features
+## Security Features
 
-### Real-time Monitoring
-- **Live AQI Tracking**: Real-time Air Quality Index with trend analysis
-- **Multi-Pollutant Monitoring**: PM2.5, PM10, NO2, CO, O3, SO2 levels
-- **Connection Status**: Live data connection monitoring
-- **Auto-refresh**: Data updates every 15 minutes
+### API Key Protection
+This application implements industry-standard security measures to protect API keys:
 
-### Government Crisis Management
-- **Emergency Hotline Integration**: Direct access to emergency services
-- **Public Safety Alerts**: Real-time recommendations based on AQI levels
-- **Hotspot Mapping**: Identify high-pollution areas across Delhi
-- **Trend Analysis**: Historical data comparison and forecasting
+1. **Environment Variables**: All API keys are stored in `.env.local` files
+2. **Git Ignore**: `.env.local` files are excluded from version control
+3. **Client-Side Only**: API keys are only used in the frontend (Vite handles this securely)
+4. **No Hardcoding**: No API keys are hardcoded in the source code
 
-### User Experience
-- **Progressive Web App**: Installable on mobile devices
-- **Responsive Design**: Works on all devices and screen sizes
-- **Accessibility**: WCAG compliant with screen reader support
-- **Offline Capability**: Basic functionality when internet is unavailable
+### Required Environment Variables
 
-## 🛠️ Technology Stack
+Create a `.env.local` file in the root directory:
 
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite
-- **UI Framework**: shadcn/ui components
-- **Styling**: Tailwind CSS
-- **State Management**: TanStack Query
-- **Routing**: React Router
-- **PWA**: Service Worker for offline functionality
+```bash
+# Google Air Quality API Key
+VITE_GOOGLE_AQI_API_KEY=your_google_aqi_api_key_here
 
-## 📱 Installation & Development
+# OpenWeatherMap API Key (if using)
+VITE_OPENWEATHER_API_KEY=your_openweather_api_key_here
+```
+
+## Setup Instructions
 
 ### Prerequisites
-- Node.js (version 18 or higher)
-- npm or yarn
+- Node.js 18+ 
+- npm or pnpm
 
-### Local Development
+### Installation
 
-```bash
-# Clone the repository
-git clone https://github.com/Sandde-Zutshi/delhi-air-clarity-now.git
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Sandde-Zutshi/delhi-air-clarity-now.git
+   cd delhi-air-clarity-now
+   ```
 
-# Navigate to project directory
-cd delhi-air-clarity-now
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
 
-# Install dependencies
-npm install
+3. **Configure environment variables**
+   ```bash
+   # Create .env.local file
+   echo "VITE_GOOGLE_AQI_API_KEY=your_google_aqi_api_key_here" > .env.local
+   ```
 
-# Start development server
-npm run dev
+4. **Start development server**
+   ```bash
+   npm run dev
+   # or
+   pnpm dev
+   ```
 
-# Open http://localhost:5173 in your browser
-```
+5. **Open your browser**
+   Navigate to `http://localhost:8081`
 
-### Building for Production
+## API Sources
 
-```bash
-# Create optimized production build
-npm run build
+### 1. CPCB (Central Pollution Control Board)
+- **Endpoint**: `http://182.75.69.206:8080/v1.0/industry/delhi-industries/station/delhi-etp-01/data`
+- **Data**: PM, SO2, BOD, COD, pH
+- **Update Frequency**: Real-time
+- **Authentication**: None required
 
-# Preview production build
-npm run preview
-```
+### 2. Google Air Quality API
+- **Endpoint**: `https://airquality.googleapis.com/v1/currentConditions:lookup`
+- **Data**: PM2.5, PM10, NO2, CO, O3, SO2, AQI
+- **Update Frequency**: Real-time
+- **Authentication**: API Key required
 
-## 🏛️ Government Integration
+### 3. OpenWeatherMap
+- **Endpoint**: OpenWeatherMap Air Pollution API
+- **Data**: PM2.5, PM10, NO2, CO, O3, SO2
+- **Update Frequency**: Every 5 minutes
+- **Authentication**: API Key required
 
-This system is designed to integrate with:
-- **Delhi Pollution Control Committee** monitoring stations
-- **Central Pollution Control Board** data feeds
-- **Emergency response systems**
-- **Public notification services**
+## Security Best Practices
 
-## 📊 Data Sources
+### For Development
+1. Never commit `.env.local` files to version control
+2. Use different API keys for development and production
+3. Regularly rotate API keys
+4. Monitor API usage and set rate limits
 
-- Real-time monitoring station data
-- Satellite-based pollution tracking
-- Meteorological data integration
-- Traffic and industrial emission data
+### For Production
+1. Use environment-specific `.env` files
+2. Implement API key rotation
+3. Set up monitoring and alerting
+4. Use HTTPS for all API calls
+5. Consider using a backend proxy for additional security
 
-## 🔧 Configuration
+## Deployment
 
-The application can be configured for:
-- Different monitoring stations
-- Custom alert thresholds
-- Emergency contact information
-- Government branding requirements
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Add environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
-## 📞 Emergency Contacts
+### Other Platforms
+- Ensure environment variables are properly configured
+- Set up proper CORS headers if needed
+- Configure build settings for Vite
 
-- **Emergency Hotline**: 1800-XXX-XXXX
-- **Delhi Pollution Control Committee**: [Contact Information]
-- **Central Pollution Control Board**: [Contact Information]
+## Contributing
 
-## 🤝 Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-This is a government project. For contributions, please contact the Delhi Pollution Control Committee.
+## License
 
-## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Government of India - Delhi Pollution Control Committee
+## Support
 
----
+For support or questions:
+- Create an issue on GitHub
+- Contact: [Your Contact Information]
 
-**System Status**: Operational  
-**Last Updated**: Real-time  
-**Data Source**: Government Monitoring Stations
+## Disclaimer
+
+This application is for informational purposes only. Always refer to official government sources for critical air quality decisions.

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { AQILevel } from "@/components/AQICard/constants";
 import { useAQI } from "@/hooks/useAQI";
 import { useCPCBAirQuality } from "@/hooks/useCPCBAirQuality";
+import { useGoogleAQI } from "@/hooks/useGoogleAQI";
 
 // Helper function to get pollutant status based on value
 const getPollutantStatus = (name: string, value: number): "good" | "moderate" | "unhealthy" | "critical" => {
@@ -67,6 +68,13 @@ const Index = () => {
     loading: cpcbLoading,
     error: cpcbError
   } = useCPCBAirQuality('delhi-industries', 'delhi-etp-01');
+
+  // Use Google AQI data for Delhi
+  const {
+    data: googleData,
+    loading: googleLoading,
+    error: googleError
+  } = useGoogleAQI(28.7041, 77.1025); // Delhi coordinates
   
   useEffect(() => {
     // Simulate connection status changes
@@ -292,6 +300,41 @@ const Index = () => {
                   ))}
                   {!cpcbLoading && !cpcbData && !cpcbError && (
                     <div className="col-span-full text-center text-muted-foreground py-8">No CPCB data available.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Google AQI Data Section */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-foreground">Google Air Quality Data</h3>
+                  <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">Data Source: Google</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
+                  {googleLoading && (
+                    <div className="col-span-full text-center text-muted-foreground py-8">Loading Google AQI data...</div>
+                  )}
+                  {googleError && (
+                    <div className="col-span-full text-center text-destructive py-8">Error loading Google AQI data: {googleError}</div>
+                  )}
+                  {googleData && [
+                    { name: "PM2.5", value: googleData.pm25, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", googleData.pm25 ?? 0) },
+                    { name: "PM10", value: googleData.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", googleData.pm10 ?? 0) },
+                    { name: "NO2", value: googleData.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", googleData.no2 ?? 0) },
+                    { name: "CO", value: googleData.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", googleData.co ?? 0) },
+                    { name: "O3", value: googleData.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", googleData.o3 ?? 0) },
+                    { name: "SO2", value: googleData.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", googleData.so2 ?? 0) }
+                  ].map((pollutant, index) => (
+                    <div
+                      key={pollutant.name}
+                      className="animate-fade-in-up hover-lift min-w-0"
+                      style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+                    >
+                      <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
+                    </div>
+                  ))}
+                  {!googleLoading && !googleData && !googleError && (
+                    <div className="col-span-full text-center text-muted-foreground py-8">No Google AQI data available.</div>
                   )}
                 </div>
               </div>
