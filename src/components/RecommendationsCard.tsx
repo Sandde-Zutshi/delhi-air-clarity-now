@@ -171,7 +171,7 @@ export function RecommendationsCard({ aqi, onLearnMore }: RecommendationsCardPro
         <CardHeader>
           <CardTitle className="text-lg font-medium flex items-center gap-2">
             <Shield className="w-5 h-5 text-accent" />
-            Government Recommendations
+            Recommendations
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
