@@ -6,6 +6,7 @@ import { TrendingUp, TrendingDown, Minus, Flame, Droplets, Wind, Zap, Car, Facto
 import { cn } from "@/lib/utils";
 import { getPollutantColorInfo } from '@/lib/pollutant-utils';
 import { Sparklines, SparklinesLine } from 'react-sparklines';
+import { useState } from 'react';
 
 interface PollutantCardProps {
   name: string;
@@ -84,7 +85,7 @@ const trendIcons = {
 };
 
 // Generate realistic 24-hour trend data that resets at midnight
-function generate24HourTrend(pollutantName: string, currentValue: number): number[] {
+function generate24HourTrend(pollutantName: string, currentValue: number): Array<{value: number, time: string, hour: number}> {
   const now = new Date();
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -95,7 +96,7 @@ function generate24HourTrend(pollutantName: string, currentValue: number): numbe
   const seed = dateSeed + nameSeed;
   
   // Generate 24 data points (one per hour)
-  const trend: number[] = [];
+  const trend: Array<{value: number, time: string, hour: number}> = [];
   
   for (let hour = 0; hour < 24; hour++) {
     // Base value with daily pattern (higher during day, lower at night)
@@ -114,16 +115,29 @@ function generate24HourTrend(pollutantName: string, currentValue: number): numbe
     const randomFactor = 0.9 + (Math.sin(seed + hour * 7) * 0.2);
     const finalValue = Math.max(0, baseValue * randomFactor);
     
+    // Format time string in 12-hour format with AM/PM
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const timeString = `${displayHour} ${ampm}`;
+    
     // For current hour, use the actual current value
     if (hour === currentHour) {
-      trend.push(currentValue);
+      trend.push({ value: currentValue, time: timeString, hour });
     } else if (hour < currentHour) {
       // Past hours: use generated value
-      trend.push(Math.round(finalValue * 10) / 10);
+      trend.push({ 
+        value: Math.round(finalValue * 10) / 10, 
+        time: timeString, 
+        hour 
+      });
     } else {
       // Future hours: use a projection based on current trend
       const projection = currentValue * (0.8 + Math.random() * 0.4);
-      trend.push(Math.round(projection * 10) / 10);
+      trend.push({ 
+        value: Math.round(projection * 10) / 10, 
+        time: timeString, 
+        hour 
+      });
     }
   }
   
@@ -131,6 +145,8 @@ function generate24HourTrend(pollutantName: string, currentValue: number): numbe
 }
 
 export function PollutantCard({ name, value, unit, trend, trendValue, status, onLearnMore }: PollutantCardProps) {
+  const [hoveredPoint, setHoveredPoint] = useState<{value: number, time: string, hour: number} | null>(null);
+  
   if (value == null || isNaN(value)) {
     return (
       <div className="rounded-2xl p-6 text-center bg-muted/50 text-muted-foreground shadow-md min-h-[120px] flex flex-col items-center justify-center">
@@ -145,70 +161,64 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
   const PollutantIcon = getPollutantIcon(name);
   
-  // Generate real-time 24-hour trend data
-  const trendData = generate24HourTrend(name, value);
+  // Generate real-time 24-hour trend data with time information
+  const trendDataWithTime = generate24HourTrend(name, value);
+  const trendValues = trendDataWithTime.map(d => d.value);
   
+  // Handle mouse events for tooltip
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const width = rect.width;
+    const index = Math.floor((x / width) * trendDataWithTime.length);
+    
+    if (index >= 0 && index < trendDataWithTime.length) {
+      setHoveredPoint(trendDataWithTime[index]);
+    }
+  };
+  
+  const handleMouseLeave = () => {
+    setHoveredPoint(null);
+  };
+
   return (
     <Card className="border-0 bg-transparent shadow-none relative z-10" style={{ borderColor: colorInfo.borderColor }}>
       <CardContent className="p-0">
         <div 
-          className="rounded-2xl p-6 relative overflow-hidden hover:shadow-lg transition-all duration-300"
+          className="rounded-2xl p-6 relative overflow-hidden hover:shadow-lg transition-all duration-300 bg-white"
           style={{
-            background: `linear-gradient(135deg, ${colorInfo.gradient[0]}, ${colorInfo.gradient[1]})`,
-            border: `2px solid ${colorInfo.borderColor}`
+            background: 'white',
+            position: 'relative'
           }}
         >
+          {/* Dynamic colored corners - minimal quarter arc only on top-left corner */}
+          <svg className="absolute top-0 left-0 z-10" width="20" height="20" style={{overflow: 'visible'}}>
+            <path d="M20,1 Q1,1 1,20" fill="none" stroke={colorInfo.gradient[0]} strokeWidth="2" />
+          </svg>
           {/* Header: Pollutant Name and Icon */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${colorInfo.textColor}20` }}
-              >
-                <PollutantIcon 
-                  className="w-5 h-5" 
-                  style={{ color: colorInfo.textColor }} 
-                />
-              </div>
-              <div>
-                <h3 
-                  className="font-bold text-lg leading-tight"
-                  style={{ color: colorInfo.textColor }}
-                >
-                  {name}
-                </h3>
-                <p 
-                  className="text-xs opacity-80"
-                  style={{ color: colorInfo.textColor }}
-                >
-                  Air Pollutant
-                </p>
-              </div>
+          {/* In the card header, set position: relative */}
+          <div className="flex flex-col items-start gap-0 relative w-full mb-4">
+            {/* Air Pollutant label and name in rectangular box - positioned closer to edges */}
+            <div className="bg-gray-100 border border-gray-200 rounded-lg px-2 py-1 shadow-sm -mt-3 -ml-3">
+              <span className="text-xs font-normal opacity-60 block text-gray-600">Air Pollutant</span>
+              <h3 className="font-bold text-lg leading-tight text-gray-900">{name}</h3>
             </div>
-            
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onLearnMore?.({ name, value, unit, status })}
-              className="opacity-70 hover:opacity-100 transition-opacity hover:bg-white/20"
-              style={{ color: colorInfo.textColor }}
-            >
-              <Info className="w-4 h-4" />
-            </Button>
+            {/* Icon aligned with the center of the pollutant box, positioned close to edges */}
+            <div className="absolute top-0 right-0 flex items-center justify-center px-3 py-3 rounded-md bg-gray-100 border border-gray-200 shadow-lg z-10 -mt-3 -mr-3">
+              <PollutantIcon className="w-6 h-6 text-gray-700" />
+            </div>
           </div>
           
           {/* Main Value Display */}
           <div className="text-center mb-4">
             <div className="flex items-baseline justify-center gap-2">
               <span 
-                className="text-4xl font-bold"
-                style={{ color: colorInfo.textColor }}
+                className="text-4xl font-bold text-gray-900"
               >
                 {value}
               </span>
               <span 
-                className="text-lg font-medium opacity-80"
-                style={{ color: colorInfo.textColor }}
+                className="text-lg font-medium text-gray-600"
               >
                 {unit}
               </span>
@@ -221,43 +231,96 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
               variant="secondary" 
               className="text-xs font-semibold px-3 py-1"
               style={{ 
-                backgroundColor: colorInfo.textColor,
-                color: colorInfo.hex
+                backgroundColor: colorInfo.gradient[0],
+                color: colorInfo.textColor
               }}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </Badge>
             
-            <div className="flex items-center gap-2">
-              <TrendIcon 
-                className="w-4 h-4" 
-                style={{ color: colorInfo.textColor }} 
-              />
-              <span 
-                className="text-sm font-medium"
-                style={{ color: colorInfo.textColor }}
-              >
-                {trendValue ? `${trendValue}%` : 'No change'}
-              </span>
-            </div>
+            {Math.abs(trendValue) > 0.1 && (
+              <div className="flex items-center gap-2">
+                <TrendIcon 
+                  className="w-4 h-4 text-gray-600" 
+                />
+                <span 
+                  className="text-sm font-medium text-gray-600"
+                >
+                  {trendValue > 0 ? '+' : ''}{trendValue}%
+                </span>
+              </div>
+            )}
           </div>
           
-          {/* Sparkline Trend Graph */}
-          <div className="bg-white/10 rounded-lg p-3">
-            <div className="text-xs text-center mb-2 opacity-80" style={{ color: colorInfo.textColor }}>
+          {/* Interactive Sparkline Trend Graph */}
+          <div className="bg-gray-50 rounded-lg p-3">
+            <div className="text-xs text-center mb-2 text-gray-600">
               24-Hour Trend
             </div>
-            <Sparklines data={trendData} width={200} height={30} margin={5}>
-              <SparklinesLine 
-                style={{ 
-                  stroke: colorInfo.textColor, 
-                  strokeWidth: 2, 
-                  fill: "none" 
-                }} 
-              />
-            </Sparklines>
+            <div className="relative cursor-crosshair" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ height: 40 }}>
+              {/* Custom SVG trendline with dynamic color segments */}
+              <svg width={200} height={30} style={{ display: 'block', width: '100%', height: 30 }}>
+                {trendValues.slice(0, -1).map((v, i) => {
+                  const x1 = (i / (trendValues.length - 1)) * 200;
+                  const y1 = 30 - ((trendValues[i] - Math.min(...trendValues)) / (Math.max(...trendValues) - Math.min(...trendValues) || 1)) * 28;
+                  const x2 = ((i + 1) / (trendValues.length - 1)) * 200;
+                  const y2 = 30 - ((trendValues[i + 1] - Math.min(...trendValues)) / (Math.max(...trendValues) - Math.min(...trendValues) || 1)) * 28;
+                  const color = getPollutantColorInfo(name, trendValues[i]).gradient[0];
+                  return (
+                    <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="2" />
+                  );
+                })}
+              </svg>
+              {/* Hover indicator dot and tooltip */}
+              {hoveredPoint && (
+                <>
+                  <div 
+                    className="absolute w-2 h-2 rounded-full border-2 border-white shadow-lg"
+                    style={{
+                      left: `${(hoveredPoint.hour / 23) * 100}%`,
+                      transform: 'translateX(-50%)',
+                      top: '50%',
+                      backgroundColor: getPollutantColorInfo(name, hoveredPoint.value).gradient[0]
+                    }}
+                  />
+                  {/* Tooltip display */}
+                  <div 
+                    className="absolute bg-black/80 text-white text-xs px-2 py-1 rounded pointer-events-none z-20"
+                    style={{
+                      left: `${(hoveredPoint.hour / 23) * 100}%`,
+                      transform: 'translateX(-50%)',
+                      bottom: '45px'
+                    }}
+                  >
+                    <div className="font-semibold">{hoveredPoint.time}</div>
+                    <div>{hoveredPoint.value} {unit}</div>
+                  </div>
+                </>
+              )}
+            </div>
+            {/* Time axis labels */}
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>12 AM</span>
+              <span>12 PM</span>
+              <span>11 PM</span>
+            </div>
           </div>
         </div>
+        {/* Learn More Button */}
+        {onLearnMore && (
+          <div className="flex justify-center mt-2">
+            <Button
+              onClick={() => onLearnMore(name)}
+              variant="outline"
+              size="sm"
+              className="text-sm font-medium border-2 px-4 py-2 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
+              aria-label={`Learn more about ${name}`}
+            >
+              <Info className="w-4 h-4 mr-2" />
+              Learn More
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

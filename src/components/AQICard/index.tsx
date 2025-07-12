@@ -97,7 +97,7 @@ export function AQICard({
             whileHover="hover"
             aria-hidden="true"
           >
-            <div className="w-8 h-8 text-2xl flex items-center justify-center">
+            <div className="px-3 py-2 text-2xl flex items-center justify-center bg-white/80 shadow rounded-md">
               {aqiLevel.icon}
             </div>
           </motion.div>
