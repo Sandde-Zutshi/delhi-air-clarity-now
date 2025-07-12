@@ -48,10 +48,11 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
       </div>
 
       <div className="relative z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Left Section: Icon and Title */}
+          <div className="flex items-center gap-3 min-w-0">
             {/* Emergency Icon */}
-            <div className="flex items-center gap-2">
+            <div className="flex-shrink-0">
               {isEmergency ? (
                 <div className="animate-bounce">
                   <AlertTriangle className="w-5 h-5 text-white" />
@@ -62,33 +63,33 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
             </div>
 
             {/* Alert Content */}
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-sm font-bold whitespace-nowrap">
                   {getEmergencyTitle(aqi)}
                 </h2>
                 {isEmergency && (
-                  <div className="flex items-center gap-1 bg-red-600 px-2 py-1 rounded text-xs font-bold animate-pulse">
+                  <div className="flex items-center gap-1 bg-red-600 px-2 py-1 rounded text-xs font-bold animate-pulse flex-shrink-0">
                     <Shield className="w-3 h-3" />
                     EMERGENCY
                   </div>
                 )}
               </div>
-              <p className="text-xs opacity-95 mt-1">
+              <p className="text-xs opacity-95 mt-1 truncate">
                 {getEmergencyMessage(aqi)} AQI: {aqi}
               </p>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Right Section: Contacts and Actions */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             {/* Emergency Contacts */}
-            <div className="hidden md:flex items-center gap-3 text-xs">
-              <div className="flex items-center gap-1">
-                <Phone className="w-3 h-3" />
+            <div className="hidden md:flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-1 whitespace-nowrap">
+                <Phone className="w-3 h-3 flex-shrink-0" />
                 <span>SOS: 112</span>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 whitespace-nowrap">
                 <span>Ambulance: 102</span>
               </div>
             </div>
@@ -98,7 +99,7 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
               <Button
                 onClick={onViewHealth}
                 size="sm"
-                className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs px-2 py-1"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30 text-xs px-3 py-1 whitespace-nowrap"
               >
                 Health Guide
               </Button>
@@ -110,7 +111,7 @@ export function EmergencyAlertBanner({ aqi, onDismiss, onViewHealth }: Emergency
                 onClick={onDismiss}
                 size="sm"
                 variant="ghost"
-                className="text-white/80 hover:text-white hover:bg-white/10 p-1"
+                className="text-white/80 hover:text-white hover:bg-white/10 p-1 flex-shrink-0"
               >
                 <X className="w-3 h-3" />
               </Button>

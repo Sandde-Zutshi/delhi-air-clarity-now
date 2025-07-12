@@ -262,43 +262,117 @@ export default function Index() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecommendationsCard 
-                aqi={data.aqi} 
-                onLearnMore={(recommendation) => {
-                  setModalData({ type: 'recommendation', data: recommendation });
-                  setShowProtectionModal(true);
-                }}
-              />
-              <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
-                  <Heart className="w-5 h-5 text-red-500" />
-                  Health Summary
-                </h3>
-                <p className="text-sm text-gray-700 mb-4">
-                  Get detailed health guidance, personalized recommendations, and emergency protocols based on current air quality conditions.
-                </p>
+              {/* Left Side - First Recommendation */}
+              <div className="space-y-4">
+                <RecommendationsCard 
+                  aqi={data.aqi} 
+                  onLearnMore={(recommendation) => {
+                    setModalData({ type: 'recommendation', data: recommendation });
+                    setShowProtectionModal(true);
+                  }}
+                />
                 
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-gray-700">Current AQI: {data.aqi} ({data.aqiLevel})</span>
+                {/* Second Recommendation Card */}
+                <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
+                    <AlertTriangle className="w-5 h-5 text-orange-500" />
+                    Emergency Protocols
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Immediate actions to take during hazardous air quality conditions.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <span className="text-gray-700">Stay indoors with windows closed</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-gray-700">Use air purifiers if available</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-gray-700">Wear N95 masks if going outside</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-gray-700">Last Updated: {data.lastUpdated.toLocaleTimeString()}</span>
+                  
+                  <Button 
+                    onClick={() => setActiveTab('health')}
+                    className="w-full mt-4 font-medium bg-orange-500 hover:bg-orange-600 text-white"
+                  >
+                    View Emergency Guide
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Right Side - Third and Fourth Recommendations */}
+              <div className="space-y-4">
+                {/* Third Recommendation Card */}
+                <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
+                    <Heart className="w-5 h-5 text-blue-500" />
+                    Health Monitoring
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Track your health symptoms and get personalized guidance.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-gray-700">Monitor breathing difficulties</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span className="text-gray-700">Check for eye irritation</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-gray-700">Track cough and throat issues</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-gray-700">Data Source: {data.source}</span>
-                  </div>
+                  
+                  <Button 
+                    onClick={() => setActiveTab('health')}
+                    className="w-full mt-4 font-medium bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    Health Check
+                  </Button>
                 </div>
                 
-                <Button 
-                  onClick={() => setActiveTab('health')}
-                  className="w-full mt-4 font-medium bg-red-500 hover:bg-red-600 text-white"
-                >
-                  View Detailed Health Guidance
-                </Button>
+                {/* Fourth Recommendation Card */}
+                <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
+                    <Leaf className="w-5 h-5 text-green-500" />
+                    Natural Remedies
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Traditional Indian remedies for air pollution protection.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-gray-700">Tulsi tea for respiratory health</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-gray-700">Ginger and honey remedies</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-gray-700">Steam inhalation with eucalyptus</span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => setActiveTab('remedies')}
+                    className="w-full mt-4 font-medium bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    View Remedies
+                  </Button>
+                </div>
               </div>
             </div>
           </TabsContent>
