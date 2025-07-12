@@ -75,8 +75,12 @@ export function AQICard({ aqi, location = "Delhi", className, trend = "stable", 
             <div className="absolute top-4 right-4 opacity-20">
               <AQIIcon className="w-16 h-16" />
             </div>
-            <div className="text-4xl font-bold mb-3 animate-scale-in">{label}</div>
-            <div className="text-base font-medium opacity-95 mb-2">{description}</div>
+            
+            {/* AQI Value Display */}
+            <div className="text-6xl font-bold mb-2 animate-scale-in">{aqi}</div>
+            <div className="text-2xl font-semibold mb-3 opacity-95">{label}</div>
+            <div className="text-base font-medium opacity-90 mb-2">{description}</div>
+            
             {previousAqi && (
               <div className={cn("flex items-center justify-center gap-2 mt-3 text-sm", getTrendColor())}>
                 {getTrendIcon()}
