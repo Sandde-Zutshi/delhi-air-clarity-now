@@ -4,6 +4,7 @@ import { StatusButton, Button } from "@/components/ui/button";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { TrendingUp, TrendingDown, Minus, Flame, Droplets, Wind, Zap, Car, Factory, Home, Leaf, Train, Bus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPollutantColorInfo } from '@/lib/pollutant-utils';
 
 interface PollutantCardProps {
   name: string;
@@ -90,14 +91,15 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
       </div>
     );
   }
-  const config = statusConfig[status];
+  // Use new color system
+  const colorInfo = getPollutantColorInfo(name, value);
   const TrendIcon = trendIcons[trend];
   const PollutantIcon = getPollutantIcon(name);
   const description = getPollutantDescription(name);
   const source = getPollutantSource(name);
   // Dynamic gradient background style
   const cardGradient: React.CSSProperties = {
-    background: `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`,
+    background: `linear-gradient(135deg, ${colorInfo.gradient[0]}, ${colorInfo.gradient[1]})`,
     position: 'relative',
     overflow: 'hidden',
   };
@@ -117,9 +119,9 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
     <TooltipProvider>
       <div style={cardGradient} className="rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 min-w-[200px] group">
         <span style={overlayStyle} />
-        <Card className="border-0 bg-transparent shadow-none relative z-10">
+        <Card className="border-4 bg-transparent shadow-none relative z-10" style={{ borderColor: colorInfo.borderColor }}>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+            <CardTitle className="text-sm font-medium flex items-center justify-between" style={{ color: colorInfo.textColor }}>
               <div className="flex items-center gap-1 pl-1 font-semibold text-base">{name}</div>
               {/* Top-right: Source icon with tooltip */}
               <Tooltip>
@@ -136,7 +138,7 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold" style={{ color: colorInfo.textColor }}>
               {value && value > 0 ? (
                 <>
                   {value} <span className="text-sm font-normal text-muted-foreground">{unit}</span>
@@ -146,14 +148,14 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
               )}
             </div>
             <div className="flex items-center gap-2">
-              <TrendIcon className={cn("w-4 h-4", config.icon)} />
+              <TrendIcon className={cn("w-4 h-4", colorInfo.textColor)} />
               <span className="text-sm text-muted-foreground">
                 {trend === "stable" ? "No change" : `${trendValue}% ${trend === "up" ? "increase" : "decrease"}`}
               </span>
             </div>
             <div className="space-y-2">
               <StatusButton 
-                color={config.color}
+                color={colorInfo.hex}
                 widthFull
                 aria-label={`Pollutant status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
               >
@@ -168,15 +170,15 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
                     status: status, 
                     description: description,
                     icon: PollutantIcon,
-                    gradient: config.gradient
+                    gradient: colorInfo.gradient
                   })}
                   variant="outline"
                   size="sm"
                   aria-label={`Learn more about pollutant: ${name}`}
                   className="w-full text-xs font-medium border px-3 py-1 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
                   style={{
-                    borderColor: config.color,
-                    color: config.color
+                    borderColor: colorInfo.hex,
+                    color: colorInfo.hex
                   }}
                 >
                   <PollutantIcon className="w-3 h-3 mr-1" aria-hidden="true" />
