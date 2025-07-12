@@ -137,7 +137,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="animate-fade-in">
               <h1 className="text-3xl font-bold text-foreground mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Delhi Air Clarity
+                {location} Air Clarity
               </h1>
               <p className="text-muted-foreground text-sm flex items-center gap-2">
                 <span>Government Crisis Management System</span>
@@ -263,7 +263,7 @@ const Index = () => {
                 <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent truncate">
                   Key Pollutants Monitoring
                 </h2>
-                <p className="text-muted-foreground truncate">Real-time readings from OpenWeatherMap across Delhi</p>
+                <p className="text-muted-foreground truncate">Real-time readings from OpenWeatherMap across {location}</p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
@@ -286,9 +286,9 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Delhi AQI Map */}
+            {/* AQI Map */}
             <div className="lg:col-span-3 animate-fade-in-up min-w-0" style={{ animationDelay: "0.8s" }}>
-              <DelhiAQIMap />
+              <DelhiAQIMap location={location} aqiData={aqiData} />
             </div>
           </div>
         )}
