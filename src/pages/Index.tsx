@@ -261,18 +261,20 @@ export default function Index() {
               </div>
             </div>
             
+            {/* Recommendations Card - Full Width */}
+            <RecommendationsCard 
+              aqi={data.aqi} 
+              onLearnMore={(recommendation) => {
+                setModalData({ type: 'recommendation', data: recommendation });
+                setShowProtectionModal(true);
+              }}
+            />
+            
+            {/* Four Cards Below - 2 on each side */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Side - First Recommendation */}
+              {/* Left Side - 2 Cards */}
               <div className="space-y-4">
-                <RecommendationsCard 
-                  aqi={data.aqi} 
-                  onLearnMore={(recommendation) => {
-                    setModalData({ type: 'recommendation', data: recommendation });
-                    setShowProtectionModal(true);
-                  }}
-                />
-                
-                {/* Second Recommendation Card */}
+                {/* Emergency Protocols Card */}
                 <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
                     <AlertTriangle className="w-5 h-5 text-orange-500" />
@@ -304,11 +306,8 @@ export default function Index() {
                     View Emergency Guide
                   </Button>
                 </div>
-              </div>
-              
-              {/* Right Side - Third and Fourth Recommendations */}
-              <div className="space-y-4">
-                {/* Third Recommendation Card */}
+                
+                {/* Health Monitoring Card */}
                 <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
                     <Heart className="w-5 h-5 text-blue-500" />
@@ -340,8 +339,11 @@ export default function Index() {
                     Health Check
                   </Button>
                 </div>
-                
-                {/* Fourth Recommendation Card */}
+              </div>
+              
+              {/* Right Side - 2 Cards */}
+              <div className="space-y-4">
+                {/* Natural Remedies Card */}
                 <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
                     <Leaf className="w-5 h-5 text-green-500" />
@@ -371,6 +373,39 @@ export default function Index() {
                     className="w-full mt-4 font-medium bg-green-500 hover:bg-green-600 text-white"
                   >
                     View Remedies
+                  </Button>
+                </div>
+                
+                {/* Air Quality Solutions Card */}
+                <div className="rounded-lg p-6 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-900">
+                    <Shield className="w-5 h-5 text-purple-500" />
+                    Air Quality Solutions
+                  </h3>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Practical solutions to improve indoor and outdoor air quality.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span className="text-gray-700">Indoor air purifiers and plants</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                      <span className="text-gray-700">Ventilation strategies</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                      <span className="text-gray-700">Community action plans</span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => setActiveTab('solutions')}
+                    className="w-full mt-4 font-medium bg-purple-500 hover:bg-purple-600 text-white"
+                  >
+                    View Solutions
                   </Button>
                 </div>
               </div>
