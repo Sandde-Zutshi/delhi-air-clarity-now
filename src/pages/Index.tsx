@@ -12,7 +12,6 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { AQILevel } from "@/components/AQICard/constants";
 import { useAQI } from "@/hooks/useAQI";
-import { useGoogleAQI } from "@/hooks/useGoogleAQI";
 
 // Helper function to get pollutant status based on value
 const getPollutantStatus = (name: string, value: number): "good" | "moderate" | "unhealthy" | "critical" => {
@@ -41,24 +40,6 @@ const getTrend = (current: number, previous: number): "up" | "down" | "stable" =
   return diff > 0 ? "up" : "down";
 };
 
-// Helper function to convert Google AQI (0-500) to OpenWeatherMap scale (1-5)
-const convertGoogleAQIToOWM = (googleAQI: number): number => {
-  if (googleAQI <= 50) return 1;      // Good
-  if (googleAQI <= 100) return 2;     // Fair
-  if (googleAQI <= 150) return 3;     // Moderate
-  if (googleAQI <= 200) return 4;     // Poor
-  return 5;                           // Very Poor
-};
-
-// Helper function to get AQI label from Google AQI value
-const getGoogleAQILabel = (googleAQI: number): string => {
-  if (googleAQI <= 50) return "Good";
-  if (googleAQI <= 100) return "Fair";
-  if (googleAQI <= 150) return "Moderate";
-  if (googleAQI <= 200) return "Poor";
-  return "Very Poor";
-};
-
 const Index = () => {
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "reconnecting" | "offline">("connected");
   const [protectionModalOpen, setProtectionModalOpen] = useState(false);
@@ -78,18 +59,6 @@ const Index = () => {
     fetchCurrentLocation,
     refresh
   } = useAQI({ initialLocation: 'Delhi', autoRefresh: true, refreshInterval: 300000 });
-
-  // Use Google AQI data for Delhi
-  const {
-    data: googleData,
-    loading: googleLoading,
-    error: googleError
-  } = useGoogleAQI(28.7041, 77.1025); // Delhi coordinates
-
-  // Debug: Log AQI values
-  console.log('OpenWeatherMap AQI:', aqiData?.aqi);
-  console.log('Google AQI:', googleData?.aqi);
-  console.log('Converted Google AQI:', googleData?.aqi ? convertGoogleAQIToOWM(googleData.aqi) : 'N/A');
 
   useEffect(() => {
     // Simulate connection status changes
@@ -262,59 +231,22 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-8 min-w-0">
             {/* Main AQI Display */}
             <div className="lg:col-span-1 animate-fade-in-up min-w-0">
-              {(aqiData || googleData) && (
-                <div className="space-y-4">
-                  {/* Google AQI Display */}
-                  {googleData && googleData.aqi && (
-                    <div className="rounded-2xl p-6 bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium opacity-90">Google AQI</span>
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded">Live</span>
-                      </div>
-                      <div className="text-3xl font-bold mb-1">{googleData.aqi}</div>
-                      <div className="text-lg font-medium mb-2">{getGoogleAQILabel(googleData.aqi)}</div>
-                      <div className="text-sm opacity-90">Real-time air quality index</div>
-                    </div>
-                  )}
-                  
-                  {/* OpenWeatherMap AQI Display */}
-                  {aqiData && (
-                    <AQICard 
-                      aqi={aqiData.aqi} 
-                      trend="stable"
-                      onLearnMore={handleLearnMore}
-                      className="min-w-0"
-                    />
-                  )}
-                  
-                  {/* Combined AQI Display */}
-                  {googleData && aqiData && (
-                    <div className="rounded-2xl p-4 bg-muted/50 border border-muted-foreground/20">
-                      <div className="text-center">
-                        <div className="text-sm font-medium text-muted-foreground mb-2">Combined AQI Status</div>
-                        <div className="flex items-center justify-center gap-4">
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-red-600">{googleData.aqi}</div>
-                            <div className="text-xs text-muted-foreground">Google</div>
-                          </div>
-                          <div className="text-muted-foreground">vs</div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-green-600">{aqiData.aqi}</div>
-                            <div className="text-xs text-muted-foreground">OpenWeather</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              {aqiData && (
+                <AQICard 
+                  aqi={aqiData.aqi} 
+                  location={location}
+                  trend="stable"
+                  onLearnMore={handleLearnMore}
+                  className="min-w-0"
+                />
               )}
             </div>
 
             {/* Recommendations */}
             <div className="lg:col-span-2 animate-fade-in-up min-w-0" style={{ animationDelay: "0.1s" }}>
-              {(aqiData || googleData) && (
+              {aqiData && (
                 <RecommendationsCard 
-                  aqi={googleData?.aqi ? convertGoogleAQIToOWM(googleData.aqi) : aqiData?.aqi} 
+                  aqi={aqiData.aqi} 
                   onLearnMore={handleRecommendationLearnMore} 
                 />
               )}
@@ -326,68 +258,26 @@ const Index = () => {
                 <h2 className="text-xl sm:text-2xl font-bold mb-2 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent truncate">
                   Key Pollutants Monitoring
                 </h2>
-                <p className="text-muted-foreground truncate">Real-time readings from Google AQI and OpenWeatherMap across Delhi</p>
+                <p className="text-muted-foreground truncate">Real-time readings from OpenWeatherMap across Delhi</p>
               </div>
               
-              {/* Google AQI Data Section */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">Google Air Quality Data</h3>
-                  <span className="inline-block px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">Data Source: Google</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
-                  {googleLoading && (
-                    <div className="col-span-full text-center text-muted-foreground py-8">Loading Google AQI data...</div>
-                  )}
-                  {googleError && (
-                    <div className="col-span-full text-center text-destructive py-8">Error loading Google AQI data: {googleError}</div>
-                  )}
-                  {googleData && [
-                    { name: "PM2.5", value: googleData.pm25, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", googleData.pm25 ?? 0) },
-                    { name: "PM10", value: googleData.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", googleData.pm10 ?? 0) },
-                    { name: "NO2", value: googleData.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", googleData.no2 ?? 0) },
-                    { name: "CO", value: googleData.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", googleData.co ?? 0) },
-                    { name: "O3", value: googleData.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", googleData.o3 ?? 0) },
-                    { name: "SO2", value: googleData.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", googleData.so2 ?? 0) }
-                  ].map((pollutant, index) => (
-                    <div
-                      key={pollutant.name}
-                      className="animate-fade-in-up hover-lift min-w-0"
-                      style={{ animationDelay: `${0.3 + index * 0.1}s` }}
-                    >
-                      <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
-                    </div>
-                  ))}
-                  {!googleLoading && !googleData && !googleError && (
-                    <div className="col-span-full text-center text-muted-foreground py-8">No Google AQI data available.</div>
-                  )}
-                </div>
-              </div>
-
-              {/* OpenWeatherMap Data Section */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">OpenWeatherMap Data</h3>
-                  <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">Data Source: OpenWeatherMap</span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
-                  {aqiData && [
-                    { name: "PM2.5", value: aqiData.pollutants.pm2_5, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", aqiData.pollutants.pm2_5) },
-                    { name: "PM10", value: aqiData.pollutants.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", aqiData.pollutants.pm10) },
-                    { name: "NO2", value: aqiData.pollutants.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", aqiData.pollutants.no2) },
-                    { name: "CO", value: aqiData.pollutants.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", aqiData.pollutants.co) },
-                    { name: "O3", value: aqiData.pollutants.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", aqiData.pollutants.o3) },
-                    { name: "SO2", value: aqiData.pollutants.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", aqiData.pollutants.so2) }
-                  ].map((pollutant, index) => (
-                    <div 
-                      key={pollutant.name}
-                      className="animate-fade-in-up hover-lift min-w-0"
-                      style={{ animationDelay: `${0.3 + index * 0.1}s` }}
-                    >
-                      <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
-                    </div>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-4 min-w-0">
+                {aqiData && [
+                  { name: "PM2.5", value: aqiData.pollutants.pm2_5, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM2.5", aqiData.pollutants.pm2_5) },
+                  { name: "PM10", value: aqiData.pollutants.pm10, unit: "μg/m³", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("PM10", aqiData.pollutants.pm10) },
+                  { name: "NO2", value: aqiData.pollutants.no2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("NO2", aqiData.pollutants.no2) },
+                  { name: "CO", value: aqiData.pollutants.co, unit: "ppm", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("CO", aqiData.pollutants.co) },
+                  { name: "O3", value: aqiData.pollutants.o3, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("O3", aqiData.pollutants.o3) },
+                  { name: "SO2", value: aqiData.pollutants.so2, unit: "ppb", trend: "stable" as "stable", trendValue: 0, status: getPollutantStatus("SO2", aqiData.pollutants.so2) }
+                ].map((pollutant, index) => (
+                  <div 
+                    key={pollutant.name}
+                    className="animate-fade-in-up hover-lift min-w-0"
+                    style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+                  >
+                    <PollutantCard {...pollutant} onLearnMore={handlePollutantLearnMore} />
+                  </div>
+                ))}
               </div>
             </div>
 

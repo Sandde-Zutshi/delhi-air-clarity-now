@@ -13,7 +13,7 @@
     { "q": "What are common sources of moderate pollution?", "a": "Vehicle emissions, construction dust, and industrial activity are common sources." },
     { "q": "Should I monitor air quality updates?", "a": "Yes, stay informed about changing air quality, especially if you belong to a sensitive group." }
   ],
-  "Unhealthy for Sensitive Groups": [
+  "Unhealthy for Sensitive": [
     { "q": "Who is considered sensitive to air pollution?", "a": "Children, elderly, pregnant women, and people with heart or lung conditions are most sensitive." },
     { "q": "Should children wear masks outdoors?", "a": "If air quality is poor, children should limit outdoor activities and may wear masks if necessary." },
     { "q": "Is it safe for elderly to go outside?", "a": "Elderly people should avoid strenuous outdoor activities and stay indoors as much as possible." },
