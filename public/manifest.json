@@ -1,0 +1,42 @@
+{
+  "name": "Delhi Air Clarity - Government Crisis Management",
+  "short_name": "Delhi AQI",
+  "description": "Real-time Air Quality Index monitoring for Delhi with government crisis management tools",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#dc2626",
+  "background_color": "#fafafa",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/placeholder.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/placeholder.svg",
+      "sizes": "512x512", 
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "government", "health"],
+  "shortcuts": [
+    {
+      "name": "Current AQI",
+      "short_name": "AQI",
+      "description": "View current air quality index",
+      "url": "/?view=aqi"
+    },
+    {
+      "name": "Hotspots",
+      "short_name": "Hotspots", 
+      "description": "View pollution hotspots",
+      "url": "/?view=hotspots"
+    }
+  ],
+  "lang": "en",
+  "dir": "ltr"
+}

@@ -77,6 +77,23 @@ All colors MUST be HSL. AQI standard color coding implementation.
     /* Animation variables */
     --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Modern glassmorphism effects */
+    --glass-bg: hsl(var(--background) / 0.8);
+    --glass-border: hsl(var(--border) / 0.2);
+    --backdrop-blur: blur(12px);
+    
+    /* Enhanced gradients */
+    --gradient-mesh: 
+      radial-gradient(at 40% 20%, hsl(var(--primary) / 0.1) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, hsl(var(--accent) / 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsl(var(--primary) / 0.05) 0px, transparent 50%);
+    
+    /* Pulse animations for live data */
+    --pulse-success: 0 0 20px hsl(var(--aqi-good) / 0.4);
+    --pulse-warning: 0 0 20px hsl(var(--aqi-moderate) / 0.4);
+    --pulse-danger: 0 0 20px hsl(var(--aqi-unhealthy) / 0.4);
 
     --sidebar-background: 0 0% 98%;
 
@@ -141,5 +158,88 @@ All colors MUST be HSL. AQI standard color coding implementation.
 
   body {
     @apply bg-background text-foreground;
+    background-image: var(--gradient-mesh);
+    background-attachment: fixed;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Glassmorphism card */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--backdrop-blur);
+    border: 1px solid var(--glass-border);
+    @apply shadow-lg;
+  }
+  
+  /* Floating animation */
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  /* Pulse glow effect */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes pulse-glow {
+    from { box-shadow: var(--shadow-md); }
+    to { box-shadow: var(--shadow-lg), var(--pulse-success); }
+  }
+  
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(90deg, 
+      hsl(var(--muted)) 25%, 
+      hsl(var(--muted-foreground) / 0.1) 50%, 
+      hsl(var(--muted)) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Hover lift effect */
+  .hover-lift {
+    transition: var(--transition-base);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* Scale on hover */
+  .hover-scale {
+    transition: var(--transition-bounce);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Gradient borders */
+  .gradient-border {
+    background: var(--gradient-aqi);
+    padding: 2px;
+    border-radius: calc(var(--radius) + 2px);
+  }
+  
+  .gradient-border > * {
+    border-radius: var(--radius);
+    background: hsl(var(--card));
   }
 }
