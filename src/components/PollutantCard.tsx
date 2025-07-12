@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { StatusButton, Button } from "@/components/ui/button";
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { TrendingUp, TrendingDown, Minus, Flame, Droplets, Wind, Zap, Car, Factory } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -69,76 +70,118 @@ const trendIcons = {
 };
 
 export function PollutantCard({ name, value, unit, trend, trendValue, status, onLearnMore }: PollutantCardProps) {
+  if (value == null || isNaN(value)) {
+    return (
+      <div className="rounded-2xl p-6 text-center bg-muted/50 text-muted-foreground shadow-md min-h-[120px] flex flex-col items-center justify-center">
+        <span className="text-lg font-bold mb-1">No Data</span>
+        <span className="text-xs">No data available for {name} at this time.</span>
+      </div>
+    );
+  }
   const config = statusConfig[status];
   const TrendIcon = trendIcons[trend];
   const PollutantIcon = getPollutantIcon(name);
   const description = getPollutantDescription(name);
-  
+  // Dynamic gradient background style
+  const cardGradient: React.CSSProperties = {
+    background: `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`,
+    position: 'relative',
+    overflow: 'hidden',
+  };
+  // Overlay for readability
+  const overlayStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    background: 'rgba(255,255,255,0.75)',
+    zIndex: 0,
+    pointerEvents: 'none' as React.CSSProperties['pointerEvents'],
+    borderRadius: '1rem',
+  };
   return (
-    <Card className="border-0 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 min-w-[200px]">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PollutantIcon className="w-4 h-4" />
-            {name}
-          </div>
-          <div 
-            className="w-3 h-3 rounded-full"
-            style={{
-              background: `linear-gradient(135deg, ${config.gradient[0]}, ${config.gradient[1]})`
-            }}
-          />
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-2xl font-bold">
-          {value} <span className="text-sm font-normal text-muted-foreground">{unit}</span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <TrendIcon className={cn("w-4 h-4", config.icon)} />
-          <span className="text-sm text-muted-foreground">
-            {trend === "stable" ? "No change" : `${trendValue}% ${trend === "up" ? "increase" : "decrease"}`}
-          </span>
-        </div>
-
-        <div className="space-y-2">
-          <Badge 
-            variant="outline" 
-            className="w-full justify-center text-xs"
-            style={{
-              borderColor: config.color,
-              color: config.color
-            }}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Badge>
-          
-          {onLearnMore && (
-            <Button
-              onClick={() => onLearnMore({ 
-                name: name, 
-                value: value, 
-                unit: unit, 
-                status: status, 
-                description: description,
-                icon: PollutantIcon,
-                gradient: config.gradient
-              })}
-              variant="outline"
-              size="sm"
-              className="w-full text-xs font-medium border px-3 py-1 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
-              style={{
-                borderColor: config.color,
-                color: config.color
-              }}
-            >
-              <PollutantIcon className="w-3 h-3 mr-1" />
-              Learn More
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <TooltipProvider>
+      <div style={cardGradient} className="rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 min-w-[200px] group">
+        <span style={overlayStyle} />
+        <Card className="border-0 bg-transparent shadow-none relative z-10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span><PollutantIcon className="w-4 h-4" aria-hidden="true" /></span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {name}: {description}
+                  </TooltipContent>
+                </Tooltip>
+                {name}
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <StatusButton color={config.color} aria-label={`Pollutant status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}> &nbsp; </StatusButton>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </TooltipContent>
+              </Tooltip>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="text-2xl font-bold">
+              {value && value > 0 ? (
+                <>
+                  {value} <span className="text-sm font-normal text-muted-foreground">{unit}</span>
+                </>
+              ) : (
+                <span className="text-sm text-muted-foreground">No Data</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendIcon className={cn("w-4 h-4", config.icon)} />
+              <span className="text-sm text-muted-foreground">
+                {trend === "stable" ? "No change" : `${trendValue}% ${trend === "up" ? "increase" : "decrease"}`}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <StatusButton 
+                color={config.color}
+                widthFull
+                aria-label={`Pollutant status: ${status.charAt(0).toUpperCase() + status.slice(1)}`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </StatusButton>
+              {onLearnMore && (
+                <Button
+                  onClick={() => onLearnMore({ 
+                    name: name, 
+                    value: value, 
+                    unit: unit, 
+                    status: status, 
+                    description: description,
+                    icon: PollutantIcon,
+                    gradient: config.gradient
+                  })}
+                  variant="outline"
+                  size="sm"
+                  aria-label={`Learn more about pollutant: ${name}`}
+                  className="w-full text-xs font-medium border px-3 py-1 bg-background/50 backdrop-blur-sm hover:bg-background/80 transition-all duration-200"
+                  style={{
+                    borderColor: config.color,
+                    color: config.color
+                  }}
+                >
+                  <PollutantIcon className="w-3 h-3 mr-1" aria-hidden="true" />
+                  Learn More
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </TooltipProvider>
   );
 }

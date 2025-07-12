@@ -39,12 +39,12 @@ export interface ButtonProps
   asChild?: boolean
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(buttonVariants({ variant, size }), className)}
         ref={ref}
         {...props}
       />
@@ -53,4 +53,33 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+// Reusable StatusButton for status/info/category
+export interface StatusButtonProps extends ButtonProps {
+  color?: string;
+  widthFull?: boolean;
+}
+
+export const StatusButton = React.forwardRef<HTMLButtonElement, StatusButtonProps>(
+  ({ color = "#10B981", widthFull = false, className, children, ...props }, ref) => (
+    <Button
+      ref={ref}
+      variant="outline"
+      size="sm"
+      disabled
+      className={cn(
+        "font-medium border px-3 py-1 bg-background/50 backdrop-blur-sm",
+        widthFull && "w-full",
+        className
+      )}
+      style={{
+        borderColor: color,
+        color: color,
+        ...(props.style || {})
+      }}
+      {...props}
+    >
+      {children}
+    </Button>
+  )
+)
+StatusButton.displayName = "StatusButton"

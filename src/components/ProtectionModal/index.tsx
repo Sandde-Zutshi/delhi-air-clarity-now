@@ -57,6 +57,18 @@ const itemVariants = {
 };
 
 export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onClose }: ProtectionModalProps) {
+  if (!aqiLevel && !pollutant && !recommendation) {
+    return (
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col items-center justify-center" role="dialog" aria-modal="true" aria-label="Protection information modal">
+          <span className="text-2xl font-bold mb-2">No Details Available</span>
+          <span className="text-sm text-muted-foreground">No protection or recommendation details are available for this selection.</span>
+          <Button onClick={onClose} className="mt-4" aria-label="Close protection modal">Close</Button>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   const isPollutant = pollutant && !aqiLevel && !recommendation;
   const isRecommendation = recommendation && !aqiLevel && !pollutant;
   const isAQILevel = aqiLevel && !pollutant && !recommendation;
@@ -82,15 +94,6 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     <PollutantIcon className="w-6 h-6" style={{ color: pollutant.gradient[0] }} />
                     {pollutant.name} - Air Pollutant
                   </DialogTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="h-8 w-8 p-0"
-                    aria-label="Close modal"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
                 
                 <div className="flex items-center gap-4">
@@ -166,6 +169,51 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                   </CardContent>
                 </Card>
 
+                {/* Suggestions/Questions for Pollutant Status */}
+                {(() => {
+                  // Map pollutant status to AQI level for questions.json
+                  const statusToAQI = {
+                    good: "Good",
+                    moderate: "Moderate",
+                    unhealthy: "Unhealthy",
+                    critical: "Hazardous"
+                  };
+                  const qList = (questions as Record<string, string[]>)[statusToAQI[pollutant.status]] || [];
+                  if (qList.length === 0) return null;
+                  return (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="w-5 h-5 text-primary" />
+                          Top 5 Questions for {statusToAQI[pollutant.status]} Air Quality
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          Essential information to protect yourself and your family
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {qList.map((question, index) => (
+                            <motion.div
+                              key={index}
+                              custom={index}
+                              variants={itemVariants}
+                              initial="hidden"
+                              animate="visible"
+                              className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                            >
+                              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                                {index + 1}
+                              </div>
+                              <p className="text-sm leading-relaxed">{question}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
                   <Button 
@@ -187,6 +235,16 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
   // Handle Recommendation Modal
   if (isRecommendation) {
     const RecIcon = recommendation.icon;
+    // Map recommendation priority/category to AQI status for questions.json
+    const statusToAQI = {
+      low: "Good",
+      medium: "Moderate",
+      high: "Unhealthy",
+      critical: "Hazardous"
+    };
+    // Try to use recommendation.status if available, else fallback to priority
+    const recStatus = recommendation.status || recommendation.priority || "medium";
+    const qList = (questions as Record<string, string[]>)[statusToAQI[recStatus]] || [];
     return (
       <AnimatePresence>
         <Dialog open={open} onOpenChange={onClose}>
@@ -203,17 +261,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     <RecIcon className="w-6 h-6" style={{ color: recommendation.gradient[0] }} />
                     Government Recommendation
                   </DialogTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="h-8 w-8 p-0"
-                    aria-label="Close modal"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
-                
                 <div className="flex items-center gap-4">
                   <Badge 
                     variant="outline" 
@@ -226,7 +274,6 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     <Shield className="w-4 h-4 mr-2" />
                     {recommendation.priority.toUpperCase()} PRIORITY
                   </Badge>
-                  
                   <Badge variant="secondary" className="text-sm">
                     {recommendation.category.toUpperCase()}
                   </Badge>
@@ -251,6 +298,40 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Suggestions/Questions for Recommendation Status */}
+                {qList.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Users className="w-5 h-5 text-primary" />
+                        Top 5 Questions for {statusToAQI[recStatus]} Air Quality
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Essential information to protect yourself and your family
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {qList.map((question, index) => (
+                          <motion.div
+                            key={index}
+                            custom={index}
+                            variants={itemVariants}
+                            initial="hidden"
+                            animate="visible"
+                            className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                          >
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
+                              {index + 1}
+                            </div>
+                            <p className="text-sm leading-relaxed">{question}</p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Implementation Guidelines */}
                 <Card>
@@ -335,7 +416,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
     <AnimatePresence>
       {open && (
         <Dialog open={open} onOpenChange={onClose}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-label="Protection information modal">
             <motion.div
               variants={modalVariants}
               initial="hidden"
@@ -345,31 +426,23 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
               <DialogHeader className="space-y-4">
                 <div className="flex items-center justify-between">
                   <DialogTitle className="text-2xl font-bold flex items-center gap-3">
-                    <span className="text-3xl">{getSeverityIcon()}</span>
-                    Protection Guide for {aqiLevel.name} Air Quality
+                    <span className="text-3xl" aria-hidden="true">{getSeverityIcon && getSeverityIcon()}</span>
+                    Protection Guide for {aqiLevel?.name || pollutant?.name || recommendation?.title} Air Quality
                   </DialogTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="h-8 w-8 p-0"
-                    aria-label="Close protection modal"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
                 
                 <div className="flex items-center gap-4">
                   <Badge 
                     variant="outline" 
                     className={cn("text-sm font-medium border-2 px-3 py-1", getSeverityColor())}
+                    aria-label={`Protection level: ${aqiLevel?.protectionLevel}`}
                   >
-                    <Shield className="w-4 h-4 mr-2" />
-                    {aqiLevel.protectionLevel}
+                    <Shield className="w-4 h-4 mr-2" aria-hidden="true" />
+                    {aqiLevel?.protectionLevel}
                   </Badge>
                   
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
+                    <MapPin className="w-4 h-4" aria-hidden="true" />
                     <span>Delhi, India</span>
                   </div>
                 </div>
@@ -380,7 +453,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                 <Card className="border-l-4 border-l-primary">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-primary" />
+                      <AlertTriangle className="w-5 h-5 text-primary" aria-hidden="true" />
                       Current Situation
                     </CardTitle>
                   </CardHeader>
@@ -395,8 +468,8 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Users className="w-5 h-5 text-primary" />
-                      Top 5 Questions for {aqiLevel.name} Air Quality
+                      <Users className="w-5 h-5 text-primary" aria-hidden="true" />
+                      Top 5 Questions for {aqiLevel?.name} Air Quality
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Essential information to protect yourself and your family
@@ -433,7 +506,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     <Card className="border-l-4 border-l-destructive bg-destructive/5">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-lg flex items-center gap-2 text-destructive">
-                          <AlertTriangle className="w-5 h-5" />
+                          <AlertTriangle className="w-5 h-5" aria-hidden="true" />
                           Emergency Information
                         </CardTitle>
                       </CardHeader>
@@ -459,6 +532,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                     onClick={onClose}
                     className="flex-1"
                     variant="outline"
+                    aria-label="Close protection modal"
                   >
                     Got it
                   </Button>
@@ -468,6 +542,7 @@ export function ProtectionModal({ open, aqiLevel, pollutant, recommendation, onC
                       // Could open emergency contacts or additional resources
                       window.open('tel:1800-XXX-XXXX', '_self');
                     }}
+                    aria-label="Call emergency hotline"
                   >
                     Call Emergency
                   </Button>
