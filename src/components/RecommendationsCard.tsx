@@ -174,9 +174,9 @@ export function RecommendationsCard({ aqi, onLearnMore }: RecommendationsCardPro
             Recommendations
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(!recommendations || recommendations.length === 0) ? (
-            <div className="text-center text-muted-foreground py-8">No recommendations available for this AQI value.</div>
+            <div className="text-center text-muted-foreground py-8 col-span-full">No recommendations available for this AQI value.</div>
           ) : recommendations.map((rec, index) => {
             const config = priorityConfig[rec.priority];
             const Icon = rec.icon;
