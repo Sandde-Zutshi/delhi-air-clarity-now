@@ -15,7 +15,8 @@ import { AQICardHoverProvider } from '@/components/AQICardHoverContext';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle, RefreshCw } from "lucide-react";
+import { Shield, Cloud, BarChart3, Heart, Map, Leaf, AlertTriangle, RefreshCw, LayoutGrid, Rows2 } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 export default function Index() {
   const { 
@@ -31,6 +32,7 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showEmergencyBanner, setShowEmergencyBanner] = useState(true);
+  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
 
   const handleRefresh = async () => {
     if (!canManualRefresh) {
@@ -143,33 +145,49 @@ export default function Index() {
         {/* Main Content */}
         <main className="container mx-auto px-4 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="health" className="flex items-center gap-2">
-                <Heart className="w-4 h-4" />
-                Health
-              </TabsTrigger>
-              <TabsTrigger value="forecast" className="flex items-center gap-2">
-                <Cloud className="w-4 h-4" />
-                Forecast
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                History
-              </TabsTrigger>
-              <TabsTrigger value="map" className="flex items-center gap-2">
-                <Map className="w-4 h-4" />
-                Map
-              </TabsTrigger>
-              <TabsTrigger value="remedies" className="flex items-center gap-2">
-                <Leaf className="w-4 h-4" />
-                Remedies
-              </TabsTrigger>
-            </TabsList>
-
+            <div className="flex items-center justify-between mb-2">
+              <TabsList className="grid w-full grid-cols-7">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="health" className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Health
+                </TabsTrigger>
+                <TabsTrigger value="forecast" className="flex items-center gap-2">
+                  <Cloud className="w-4 h-4" />
+                  Forecast
+                </TabsTrigger>
+                <TabsTrigger value="history" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  History
+                </TabsTrigger>
+                <TabsTrigger value="map" className="flex items-center gap-2">
+                  <Map className="w-4 h-4" />
+                  Map
+                </TabsTrigger>
+                <TabsTrigger value="remedies" className="flex items-center gap-2">
+                  <Leaf className="w-4 h-4" />
+                  Remedies
+                </TabsTrigger>
+                <TabsTrigger value="recommendations" className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  Recommendations
+                </TabsTrigger>
+              </TabsList>
+              <div className="flex gap-2 ml-4">
+                {viewMode === 'carousel' ? (
+                  <Button variant="ghost" size="icon" aria-label="View All" onClick={() => setViewMode('grid')}>
+                    <LayoutGrid className="w-5 h-5" />
+                  </Button>
+                ) : (
+                  <Button variant="ghost" size="icon" aria-label="Collapse" onClick={() => setViewMode('carousel')}>
+                    <Rows2 className="w-5 h-5" />
+                  </Button>
+                )}
+              </div>
+            </div>
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -186,84 +204,59 @@ export default function Index() {
                   />
                 </div>
                 <div className="lg:col-span-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <PollutantCard 
-                      name="PM2.5" 
-                      value={data.pollutants.pm2_5} 
-                      unit="μg/m³" 
-                      trend={getPollutantTrend(data.pollutants.pm2_5)}
-                      trendValue={getTrendValue(data.pollutants.pm2_5)}
-                      status={getPollutantStatus("PM2.5", data.pollutants.pm2_5)}
-                      onLearnMore={(pollutant) => {
-                        setModalData({ type: 'pollutant', data: pollutant });
-                        setShowProtectionModal(true);
-                      }}
-                    />
-                    <PollutantCard 
-                      name="PM10" 
-                      value={data.pollutants.pm10} 
-                      unit="μg/m³" 
-                      trend={getPollutantTrend(data.pollutants.pm10)}
-                      trendValue={getTrendValue(data.pollutants.pm10)}
-                      status={getPollutantStatus("PM10", data.pollutants.pm10)}
-                      onLearnMore={(pollutant) => {
-                        setModalData({ type: 'pollutant', data: pollutant });
-                        setShowProtectionModal(true);
-                      }}
-                    />
-                    <PollutantCard 
-                      name="NO2" 
-                      value={data.pollutants.no2} 
-                      unit="ppb" 
-                      trend={getPollutantTrend(data.pollutants.no2)}
-                      trendValue={getTrendValue(data.pollutants.no2)}
-                      status={getPollutantStatus("NO2", data.pollutants.no2)}
-                      onLearnMore={(pollutant) => {
-                        setModalData({ type: 'pollutant', data: pollutant });
-                        setShowProtectionModal(true);
-                      }}
-                    />
-                    <PollutantCard 
-                      name="CO" 
-                      value={data.pollutants.co} 
-                      unit="ppm" 
-                      trend={getPollutantTrend(data.pollutants.co)}
-                      trendValue={getTrendValue(data.pollutants.co)}
-                      status={getPollutantStatus("CO", data.pollutants.co)}
-                      onLearnMore={(pollutant) => {
-                        setModalData({ type: 'pollutant', data: pollutant });
-                        setShowProtectionModal(true);
-                      }}
-                    />
-                    <PollutantCard 
-                      name="O3" 
-                      value={data.pollutants.o3} 
-                      unit="ppb" 
-                      trend={getPollutantTrend(data.pollutants.o3)}
-                      trendValue={getTrendValue(data.pollutants.o3)}
-                      status={getPollutantStatus("O3", data.pollutants.o3)}
-                      onLearnMore={(pollutant) => {
-                        setModalData({ type: 'pollutant', data: pollutant });
-                        setShowProtectionModal(true);
-                      }}
-                    />
-                    <PollutantCard 
-                      name="SO2" 
-                      value={data.pollutants.so2} 
-                      unit="ppb" 
-                      trend={getPollutantTrend(data.pollutants.so2)}
-                      trendValue={getTrendValue(data.pollutants.so2)}
-                      status={getPollutantStatus("SO2", data.pollutants.so2)}
-                      onLearnMore={(pollutant) => {
-                        setModalData({ type: 'pollutant', data: pollutant });
-                        setShowProtectionModal(true);
-                      }}
-                    />
-                  </div>
+                  {viewMode === 'carousel' ? (
+                    <Carousel opts={{ align: 'start' }}>
+                      <CarouselContent>
+                        {["PM2.5", "PM10", "NO2", "CO", "O3", "SO2"].map((pollutant, idx, arr) => (
+                          <CarouselItem key={pollutant} className="basis-1/2 max-w-[50%]">
+                            <div className="px-2">
+                              <PollutantCard
+                                name={pollutant}
+                                value={data.pollutants[pollutant.toLowerCase().replace('.', '_')]}
+                                unit={pollutant === 'CO' ? 'ppm' : pollutant === 'PM2.5' || pollutant === 'PM10' ? 'μg/m³' : 'ppb'}
+                                trend={getPollutantTrend(data.pollutants[pollutant.toLowerCase().replace('.', '_')])}
+                                trendValue={getTrendValue(data.pollutants[pollutant.toLowerCase().replace('.', '_')])}
+                                status={getPollutantStatus(pollutant, data.pollutants[pollutant.toLowerCase().replace('.', '_')])}
+                                onLearnMore={(pollutantData) => {
+                                  setModalData({ type: 'pollutant', data: pollutantData });
+                                  setShowProtectionModal(true);
+                                }}
+                                showTrendLine={true}
+                              />
+                            </div>
+                          </CarouselItem>
+                        ))}
+                      </CarouselContent>
+                      <div className="flex justify-between mt-2">
+                        <CarouselPrevious />
+                        <CarouselNext />
+                      </div>
+                    </Carousel>
+                  ) : (
+                    <div className="grid grid-cols-3 grid-rows-2 gap-4">
+                      {["PM2.5", "PM10", "NO2", "CO", "O3", "SO2"].map((pollutant) => (
+                        <PollutantCard
+                          key={pollutant}
+                          name={pollutant}
+                          value={data.pollutants[pollutant.toLowerCase().replace('.', '_')]}
+                          unit={pollutant === 'CO' ? 'ppm' : pollutant === 'PM2.5' || pollutant === 'PM10' ? 'μg/m³' : 'ppb'}
+                          trend={getPollutantTrend(data.pollutants[pollutant.toLowerCase().replace('.', '_')])}
+                          trendValue={getTrendValue(data.pollutants[pollutant.toLowerCase().replace('.', '_')])}
+                          status={getPollutantStatus(pollutant, data.pollutants[pollutant.toLowerCase().replace('.', '_')])}
+                          onLearnMore={(pollutantData) => {
+                            setModalData({ type: 'pollutant', data: pollutantData });
+                            setShowProtectionModal(true);
+                          }}
+                          showTrendLine={false}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
-              
-              {/* Recommendations Card - Full Width */}
+            </TabsContent>
+            {/* Recommendations Tab */}
+            <TabsContent value="recommendations" className="space-y-6">
               <RecommendationsCard 
                 aqi={data.aqi} 
                 onLearnMore={(recommendation) => {
@@ -272,7 +265,6 @@ export default function Index() {
                 }}
               />
             </TabsContent>
-
             {/* Health Tab */}
             <TabsContent value="health" className="space-y-6">
               <HealthGuidanceCard 

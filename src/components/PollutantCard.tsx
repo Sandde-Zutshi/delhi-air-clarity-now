@@ -16,6 +16,7 @@ interface PollutantCardProps {
   trendValue: number;
   status: "good" | "moderate" | "unhealthy" | "critical";
   onLearnMore?: (pollutant: any) => void;
+  showTrendLine?: boolean; // NEW PROP
 }
 
 const getPollutantIcon = (name: string) => {
@@ -144,7 +145,7 @@ function generate24HourTrend(pollutantName: string, currentValue: number): Array
   return trend;
 }
 
-export function PollutantCard({ name, value, unit, trend, trendValue, status, onLearnMore }: PollutantCardProps) {
+export function PollutantCard({ name, value, unit, trend, trendValue, status, onLearnMore, showTrendLine = true }: PollutantCardProps) {
   const [hoveredPoint, setHoveredPoint] = useState<{value: number, time: string, hour: number} | null>(null);
   
   if (value == null || isNaN(value)) {
@@ -253,58 +254,60 @@ export function PollutantCard({ name, value, unit, trend, trendValue, status, on
           </div>
           
           {/* Interactive Sparkline Trend Graph */}
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-xs text-center mb-2 text-gray-600">
-              24-Hour Trend
+          {showTrendLine && (
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="text-xs text-center mb-2 text-gray-600">
+                24-Hour Trend
+              </div>
+              <div className="relative cursor-crosshair" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ height: 40 }}>
+                {/* Custom SVG trendline with dynamic color segments */}
+                <svg width={200} height={30} style={{ display: 'block', width: '100%', height: 30 }}>
+                  {trendValues.slice(0, -1).map((v, i) => {
+                    const x1 = (i / (trendValues.length - 1)) * 200;
+                    const y1 = 30 - ((trendValues[i] - Math.min(...trendValues)) / (Math.max(...trendValues) - Math.min(...trendValues) || 1)) * 28;
+                    const x2 = ((i + 1) / (trendValues.length - 1)) * 200;
+                    const y2 = 30 - ((trendValues[i + 1] - Math.min(...trendValues)) / (Math.max(...trendValues) - Math.min(...trendValues) || 1)) * 28;
+                    const color = getPollutantColorInfo(name, trendValues[i]).gradient[0];
+                    return (
+                      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="2" />
+                    );
+                  })}
+                </svg>
+                {/* Hover indicator dot and tooltip */}
+                {hoveredPoint && (
+                  <>
+                    <div 
+                      className="absolute w-2 h-2 rounded-full border-2 border-white shadow-lg"
+                      style={{
+                        left: `${(hoveredPoint.hour / 23) * 100}%`,
+                        transform: 'translateX(-50%)',
+                        top: '50%',
+                        backgroundColor: getPollutantColorInfo(name, hoveredPoint.value).gradient[0]
+                      }}
+                    />
+                    {/* Tooltip display */}
+                    <div 
+                      className="absolute bg-black/80 text-white text-xs px-2 py-1 rounded pointer-events-none z-20"
+                      style={{
+                        left: `${(hoveredPoint.hour / 23) * 100}%`,
+                        transform: 'translateX(-50%)',
+                        bottom: '45px'
+                      }}
+                    >
+                      <div className="font-semibold">{hoveredPoint.time}</div>
+                      <div>{hoveredPoint.value} {unit}</div>
+                    </div>
+                  </>
+                )}
+              </div>
+              {/* Time axis labels */}
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>12 AM</span>
+                <span>12 PM</span>
+                <span>11 PM</span>
+              </div>
             </div>
-            <div className="relative cursor-crosshair" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ height: 40 }}>
-              {/* Custom SVG trendline with dynamic color segments */}
-              <svg width={200} height={30} style={{ display: 'block', width: '100%', height: 30 }}>
-                {trendValues.slice(0, -1).map((v, i) => {
-                  const x1 = (i / (trendValues.length - 1)) * 200;
-                  const y1 = 30 - ((trendValues[i] - Math.min(...trendValues)) / (Math.max(...trendValues) - Math.min(...trendValues) || 1)) * 28;
-                  const x2 = ((i + 1) / (trendValues.length - 1)) * 200;
-                  const y2 = 30 - ((trendValues[i + 1] - Math.min(...trendValues)) / (Math.max(...trendValues) - Math.min(...trendValues) || 1)) * 28;
-                  const color = getPollutantColorInfo(name, trendValues[i]).gradient[0];
-                  return (
-                    <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="2" />
-                  );
-                })}
-              </svg>
-              {/* Hover indicator dot and tooltip */}
-              {hoveredPoint && (
-                <>
-                  <div 
-                    className="absolute w-2 h-2 rounded-full border-2 border-white shadow-lg"
-                    style={{
-                      left: `${(hoveredPoint.hour / 23) * 100}%`,
-                      transform: 'translateX(-50%)',
-                      top: '50%',
-                      backgroundColor: getPollutantColorInfo(name, hoveredPoint.value).gradient[0]
-                    }}
-                  />
-                  {/* Tooltip display */}
-                  <div 
-                    className="absolute bg-black/80 text-white text-xs px-2 py-1 rounded pointer-events-none z-20"
-                    style={{
-                      left: `${(hoveredPoint.hour / 23) * 100}%`,
-                      transform: 'translateX(-50%)',
-                      bottom: '45px'
-                    }}
-                  >
-                    <div className="font-semibold">{hoveredPoint.time}</div>
-                    <div>{hoveredPoint.value} {unit}</div>
-                  </div>
-                </>
-              )}
-            </div>
-            {/* Time axis labels */}
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>12 AM</span>
-              <span>12 PM</span>
-              <span>11 PM</span>
-            </div>
-          </div>
+          )}
         </div>
         {/* Learn More Button */}
         {onLearnMore && (
