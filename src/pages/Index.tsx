@@ -205,7 +205,7 @@ export default function Index() {
                 </div>
                 <div className="lg:col-span-2">
                   {viewMode === 'carousel' ? (
-                    <Carousel opts={{ align: 'start' }}>
+                    <Carousel opts={{ align: 'start', containScroll: 'trimSnaps' }}>
                       <CarouselContent>
                         {["PM2.5", "PM10", "NO2", "CO", "O3", "SO2"].map((pollutant, idx, arr) => (
                           <CarouselItem key={pollutant} className="basis-1/2 max-w-[50%]">
